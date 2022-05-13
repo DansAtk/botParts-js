@@ -18,7 +18,6 @@ class OneShotInputProcessor extends InputProcessor {
 
     processMessage(input) {
         this.context.onMessage(new Message('defaultuser', 'cli', input.slice(2).join(' ')));
-        this.context.cleanup();
     }
 
     cleanup() {

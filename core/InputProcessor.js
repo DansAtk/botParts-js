@@ -21,4 +21,4 @@ class InputProcessor {
     cleanup() {}
 }
 
-module.exports.InputProcessor = InputProcessor;
+module.exports = { InputProcessor };
