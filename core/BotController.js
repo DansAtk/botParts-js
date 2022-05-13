@@ -17,7 +17,11 @@ class BotController {
     }
 
     onMessage(message) {
-        console.log(message.toString());
+        this.output(message);
+    }
+
+    output(message) {
+        this.children.get('output').output(message);
     }
 
     cleanup() {
