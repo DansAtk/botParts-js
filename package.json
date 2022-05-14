@@ -1,0 +1,19 @@
+{
+  "name": "botparts",
+  "version": "1.0.0",
+  "description": "A framework for creating highly-customizable message-driven bots.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DansAtk/botParts-js.git"
+  },
+  "author": "dansatk@outlook.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DansAtk/botParts-js/issues"
+  },
+  "homepage": "https://github.com/DansAtk/botParts-js#readme"
+}
