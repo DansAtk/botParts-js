@@ -15,10 +15,6 @@ class OneShotOutputProcessor extends OutputProcessor {
         console.log(message.content);
         this.context.cleanup();
     }
-
-    cleanup() {
-        console.log("Cleaning up OneShotOutputProcessor");
-    }
 }
 
 module.exports = { OneShotOutputProcessor };

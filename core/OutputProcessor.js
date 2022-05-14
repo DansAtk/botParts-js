@@ -13,11 +13,11 @@ class OutputProcessor {
     constructor(context, theme=Theme) {
         this.context = context;
         this.theme = theme;
-        this.context.add('output', this);
-        this.init();
     }
 
-    init() {}
+    init() {
+        this.context.log("Output process initializing");
+    }
 
     post(message) {}
 
@@ -25,7 +25,9 @@ class OutputProcessor {
         this.post(this.theme.apply(message));
     }
 
-    cleanup() {}
+    cleanup() {
+        this.context.log("Cleaning up output process");
+    }
 }
 
 module.exports = { OutputProcessor };
