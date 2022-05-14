@@ -13,6 +13,7 @@ class OneShotInputProcessor extends InputProcessor {
     }
 
     init() {
+        super.init();
         this.processMessage(process.argv)
     }
 
@@ -21,7 +22,7 @@ class OneShotInputProcessor extends InputProcessor {
     }
 
     cleanup() {
-        console.log("Cleaning up OneShotInputProcessor");
+        super.cleanup();
     }
 }
 

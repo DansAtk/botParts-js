@@ -10,15 +10,17 @@
 class InputProcessor {
     constructor(context) {
         this.context = context;
-        this.context.add('input', this);
-        this.init();
     }
 
-    init() {}
+    init() {
+        this.context.log("Input process initializing");
+    }
 
     processMessage() {}
 
-    cleanup() {}
+    cleanup() {
+        this.context.log("Cleaning up input process");
+    }
 }
 
 module.exports = { InputProcessor };

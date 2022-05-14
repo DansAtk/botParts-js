@@ -14,10 +14,6 @@ class BasicOutputProcessor extends OutputProcessor {
     post(message) {
         console.log(message.content);
     }
-
-    cleanup() {
-        console.log("Cleaning up BasicOutputProcessor");
-    }
 }
 
 module.exports = { BasicOutputProcessor };

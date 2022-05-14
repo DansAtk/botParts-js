@@ -12,6 +12,7 @@ class BasicInputProcessor extends InputProcessor {
     }
 
     init() {
+        super.init();
         process.stdin.resume();
         process.stdin.setEncoding("ascii");
         process.stdin.on("data", (input) => this.processMessage(input));
@@ -19,10 +20,6 @@ class BasicInputProcessor extends InputProcessor {
 
     processMessage(input) {
         this.context.onMessage(new Message('defaultuser', 'cli', input.trim()));
-    }
-
-    cleanup() {
-        console.log("Cleaning up BasicInputProcessor");
     }
 }
 
