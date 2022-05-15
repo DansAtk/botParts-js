@@ -1,3 +1,8 @@
+/*
+    Defines User objects.
+*/
+
+
 const { format, utcToZonedTime } = require("date-fns-tz");
 
 class User {
