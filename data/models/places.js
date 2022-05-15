@@ -9,8 +9,8 @@ class Place {
     constructor(
         id = null,
         name = null,
-        tz = null
-        trigger = null,
+        tz = null,
+        trigger = null
     ) {
         this.id = id;
         this.name = name;
@@ -18,7 +18,7 @@ class Place {
         this.trigger = trigger;
     }
 
-    now() {
+    get now() {
         let today = new Date();
         if (this.tz) {
             return utcToZonedTime(today, this.tz);
@@ -28,12 +28,13 @@ class Place {
     }
 
     printNow() {
-        let today = new Date();
+        let today = this.now;
         if (this.tz) {
-            let tzToday = utcToZonedTime(today, this.tz);
-            console.log(`Time in ${this.tz}: ${format(tzToday, 'yyyy-MM-dd HH:mm:ss')}`);
+            console.log(`Place time (${this.tz}): ${format(today, 'yyyy-MM-dd HH:mm:ss')}`);
         } else {
-            console.log(`Place timezone not set. Server time: ${format(today, 'yyyy-MM-dd HH:mm:ss')}`);
+            console.log(`Server time: ${format(today, 'yyyy-MM-dd HH:mm:ss')}`);
         }
     }
 }
+
+module.exports = { Place };

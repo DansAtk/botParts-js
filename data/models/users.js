@@ -24,7 +24,7 @@ class User {
         this.points = points;
     }
 
-    now() {
+    get now() {
         let today = new Date();
         if (this.tz) {
             return utcToZonedTime(today, this.tz);
@@ -34,12 +34,11 @@ class User {
     }
 
     printNow() {
-        let today = new Date();
+        let today = this.now;
         if (this.tz) {
-            let tzToday = utcToZonedTime(today, this.tz);
-            console.log(`Time in ${this.tz}: ${format(tzToday, 'yyyy-MM-dd HH:mm:ss')}`);
+            console.log(`User time (${this.tz}): ${format(today, 'yyyy-MM-dd HH:mm:ss')}`);
         } else {
-            console.log(`User timezone not set. Server time: ${format(today, 'yyyy-MM-dd HH:mm:ss')}`);
+            console.log(`Server time: ${format(today, 'yyyy-MM-dd HH:mm:ss')}`);
         }
     }
 }

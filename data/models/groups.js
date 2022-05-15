@@ -14,7 +14,6 @@ class Group {
     ) {
         this.id = id;
         this.name = name;
-        //self.type = type;
         this.scope = scope;
         this.tz = tz;
         this.members = new Map([
@@ -23,7 +22,7 @@ class Group {
         ]);
     }
 
-    getUsers() {
+    get users() {
         return this.members.get('users');
     }
 
@@ -38,7 +37,7 @@ class Group {
         }
     }
 
-    getGroups() {
+    get groups() {
         return this.members.get('groups');
     }
 
@@ -53,7 +52,7 @@ class Group {
         }
     }
 
-    now() {
+    get now() {
         let today = new Date();
         if (this.tz) {
             return utcToZonedTime(today, this.tz);
@@ -63,12 +62,11 @@ class Group {
     }
 
     printNow() {
-        let today = new Date();
+        let today = this.now;
         if (this.tz) {
-            let tzToday = utcToZonedTime(today, this.tz);
-            console.log(`Time in ${this.tz}: ${format(tzToday, 'yyyy-MM-dd HH:mm:ss')}`);
+            console.log(`Group time (${this.tz}): ${format(today, 'yyyy-MM-dd HH:mm:ss')}`);
         } else {
-            console.log(`Group timezone not set. Server time: ${format(today, 'yyyy-MM-dd HH:mm:ss')}`);
+            console.log(`Server time: ${format(today, 'yyyy-MM-dd HH:mm:ss')}`);
         }
     }
 }
