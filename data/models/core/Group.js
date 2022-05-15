@@ -3,22 +3,22 @@
 */
 
 
-const { format, utcToZonedTime } = require("date-fns-tz");
+const { TimeHolder } = require('./TimeHolder');
+const { GLOBAL } = require('./Place');
 
-class Group {
+class Group extends TimeHolder {
     constructor(
         id = null,
         name = null,
-        scope = null,
+        scope = GLOBAL,
         tz = null
     ) {
-        this.id = id;
+        super(id, scope, tz);
         this.name = name;
-        this.scope = scope;
-        this.tz = tz;
         this.members = new Map([
             ['users', new Array()],
-            ['groups', new Array()]
+            ['groups', new Array()],
+            ['places', new Array()]
         ]);
     }
 
@@ -52,21 +52,18 @@ class Group {
         }
     }
 
-    get now() {
-        let today = new Date();
-        if (this.tz) {
-            return utcToZonedTime(today, this.tz);
-        } else {
-            return today;
-        }
+    get places() {
+        return this.members.get('places');
     }
 
-    printNow() {
-        let today = this.now;
-        if (this.tz) {
-            console.log(`Group time (${this.tz}): ${format(today, 'yyyy-MM-dd HH:mm:ss')}`);
-        } else {
-            console.log(`Server time: ${format(today, 'yyyy-MM-dd HH:mm:ss')}`);
+    addPlace(place) {
+        this.members.get('places').push(place);
+    }
+
+    removePlace(place) {
+        const index = this.members.get('places').indexOf(place);
+        if (index > -1) {
+            this.members.get('places').splice(index, 1);
         }
     }
 }
