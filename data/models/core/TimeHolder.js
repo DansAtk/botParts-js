@@ -10,26 +10,22 @@ class TimeHolder extends ScopedObject {
     constructor(
         id = null,
         scope = null,
-        tz = null
+        tz = null,
+        name = null
     ) {
-        super(id, scope);
+        super(id, scope, name);
         this.tz = tz;
     }
 
-    get now() {
-        if (this.tz) {
-            let provider = this,
-                time = utcToZonedTime(new Date(), this.tz);
-            return { provider, time };
-        } else {
-            return this.scope.now;
-        }
+    get time() {
+        return this.tz ? { 'provider': this, 'value': utcToZonedTime(new Date(), this.tz) } : this.scope.time;
     }
 
     printNow() {
-        let nowPackage = this.now;
         console.log(
-            `Time (${nowPackage.provider.tz}): ${format(nowPackage.time, 'yyyy-MM-dd HH:mm:ss')} (provided by ${nowPackage.provider === this ? "SELF" : nowPackage.provider.name})`
+            `Time (${this.time.provider.tz}): ` +
+            `${format(this.time.value, 'yyyy-MM-dd HH:mm:ss')} ` +
+            `(provided by ${this.time.provider})`
             );
     }
 }

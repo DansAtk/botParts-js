@@ -3,8 +3,8 @@
 */
 
 
-const { OutputProcessor } = require('../core/OutputProcessor');
-const { Theme } = require('../core/Theme');
+const { OutputProcessor } = require('../models/OutputProcessor');
+const { Theme } = require('../models/Theme');
 
 class OneShotOutputProcessor extends OutputProcessor {
     constructor(context, theme=Theme) {

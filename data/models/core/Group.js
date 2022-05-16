@@ -13,8 +13,7 @@ class Group extends TimeHolder {
         scope = GLOBAL,
         tz = null
     ) {
-        super(id, scope, tz);
-        this.name = name;
+        super(id, scope, tz, name);
         this.members = new Map([
             ['users', new Array()],
             ['groups', new Array()],
@@ -65,6 +64,20 @@ class Group extends TimeHolder {
         if (index > -1) {
             this.members.get('places').splice(index, 1);
         }
+    }
+
+    toString() {
+        return `${this.name ? this.name + "(" + this.id + ")" : this.id}`
+    }
+
+    get details() {
+        return `Group ${this}:\n` +
+        `  Scope - ${this.scope}\n` +
+        `  Timezone - ${this.tz ? this.tz : "None"}\n` +
+        `  Members:\n` +
+        `    Users - ${this.users.length}\n` +
+        `    Groups - ${this.groups.length}\n` +
+        `    Places - ${this.places.length}`
     }
 }
 

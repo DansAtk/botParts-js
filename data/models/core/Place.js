@@ -13,9 +13,23 @@ class Place extends TimeHolder {
         tz = null,
         trigger = null
     ) {
-        super(id, scope, tz);
-        this.name = name;
-        this.trigger = trigger;
+        super(id, scope, tz, name);
+        this._trigger = trigger;
+    }
+
+    get trigger() {
+        return this._trigger ? {'provider': this, 'value': this._trigger} : this.scope.trigger;
+    }
+
+    toString() {
+        return `${this.name ? this.name + "(" + this.id + ")" : this.id}`;
+    }
+
+    get details() {
+        return `Place ${this}:\n` +
+        `  Scope - ${this.scope}\n` +
+        `  Timezone - ${this.tz ? this.tz : "None"}\n` +
+        `  Trigger - ${this.trigger.value} (provided by ${this.trigger.provider})`;
     }
 }
 

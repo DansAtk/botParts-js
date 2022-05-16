@@ -4,9 +4,10 @@
 
 
 class ScopedObject {
-    constructor(id = null, scope = null) {
+    constructor(id = null, scope = null, name = null) {
         this.id = id;
         this.scope = scope;
+        this.name = name;
     }
 }
 

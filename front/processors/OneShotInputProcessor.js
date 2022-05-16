@@ -4,8 +4,8 @@
 */
 
 
-const { InputProcessor } = require('../core/InputProcessor');
-const { Message } = require('../core/Message');
+const { InputProcessor } = require('../models/InputProcessor');
+const { Message } = require('../../data/models/core/Message');
 
 class OneShotInputProcessor extends InputProcessor {
     constructor(context) {

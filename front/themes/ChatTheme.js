@@ -3,7 +3,7 @@
 */
 
 
-const { Theme } = require("../../core/Theme");
+const { Theme } = require('../models/Theme');
 
 class ChatTheme extends Theme {
     static width = 80;
@@ -17,7 +17,7 @@ class ChatTheme extends Theme {
 
     static addHeader(message) {
         let tempMessage = message;
-        let header = `From ${tempMessage.author} @ ${tempMessage.location}:`
+        let header = `From ${tempMessage.author} @ ${tempMessage.source}:`
         tempMessage.content = `${header}\n${tempMessage.content}`;
         return tempMessage;
     }

@@ -13,16 +13,26 @@ class User extends TimeHolder {
         scope = GLOBAL,
         tz = null,
         bday = null,
-        rank = null,
         country = null,
         points = null
     ) {
-        super(id, scope, tz);
-        this.name = name;
+        super(id, scope, tz, name);
         this.bday = bday;
-        this.rank = rank;
         this.country = country;
         this.points = points;
+    }
+
+    toString() {
+        return `${this.name ? this.name + "(" + this.id + ")" : this.id}`
+    }
+
+    get details() {
+        return `User ${this}:\n` +
+        `  Scope - ${this.scope}\n` +
+        `  Timezone - ${this.tz ? this.tz : "None"}\n` +
+        `  Birthday - ${this.bday ? this.bday : "None"}\n` +
+        `  Country - ${this.country ? this.country : "None"}\n` +
+        `  Points - ${this.points ? this.points : "None"}`
     }
 }
 
