@@ -9,13 +9,15 @@ class Message {
         content = null,
         source = null,
         destination = null,
-        recipient = null
+        recipient = null,
+        time = null
     ) {
         this.author = author;
         this.source = source;
         this.content = content;
         this.destination = destination;
         this.recipient = recipient;
+        this.time = time;
     }
 
     toString() {
@@ -28,7 +30,8 @@ class Message {
         `  Source: ${this.source}\n` +
         `  Destination: ${this.destination}\n` +
         `  Recipient: ${this.recipient}\n` +
-        `  Content: ${this.content}`;
+        `  Content: ${this.content}\n` +
+        `  Time: ${this.time}`;
     }
 }
 

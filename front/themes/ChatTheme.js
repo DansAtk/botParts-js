@@ -3,6 +3,7 @@
 */
 
 
+const { format, utcToZonedTime } = require("date-fns-tz");
 const { Theme } = require('../models/Theme');
 
 class ChatTheme extends Theme {
@@ -17,7 +18,7 @@ class ChatTheme extends Theme {
 
     static addHeader(message) {
         let tempMessage = message;
-        let header = `From ${tempMessage.author} @ ${tempMessage.source}:`
+        let header = `From ${tempMessage.author} in ${tempMessage.source} @ ${format(tempMessage.time, 'HH:mm:ss')}:`
         tempMessage.content = `${header}\n${tempMessage.content}`;
         return tempMessage;
     }

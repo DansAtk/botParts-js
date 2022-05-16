@@ -6,10 +6,15 @@
 
 const { InputProcessor } = require('../models/InputProcessor');
 const { Message } = require('../../data/models/core/Message');
+const { User } = require('../../data/models/core/User')
+const { Place } = require('../../data/models/core/Place')
 
 class OneShotInputProcessor extends InputProcessor {
     constructor(context) {
         super(context);
+        this.cliUser = new User(1, "cliuser");
+        this.inPlace = new Place(1, "stdin")
+        this.outPlace = new Place(2, "stdout")
     }
 
     init() {
@@ -18,7 +23,7 @@ class OneShotInputProcessor extends InputProcessor {
     }
 
     processMessage(input) {
-        this.context.onMessage(new Message('defaultuser', 'cli', input.slice(2).join(' ')));
+        this.context.onMessage(new Message(this.cliUser, input.slice(2).join(' '), this.inPlace, this.outPlace, null, new Date()));
     }
 
     cleanup() {

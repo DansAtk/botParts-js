@@ -23,7 +23,7 @@ class LogProcessor {
     }
 
     output(content) {
-        this.post(this.theme.apply(new Message(BOTUSER, content, GLOBAL, GLOBAL)));
+        this.post(this.theme.apply(new Message(BOTUSER, content, GLOBAL, GLOBAL, null, new Date())));
     }
 
     cleanup() {

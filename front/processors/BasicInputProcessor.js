@@ -24,7 +24,7 @@ class BasicInputProcessor extends InputProcessor {
     }
 
     processMessage(content) {
-        this.context.onMessage(new Message(this.cliUser, content.trim(), this.inPlace, this.outPlace));
+        this.context.onMessage(new Message(this.cliUser, content.trim(), this.inPlace, this.outPlace, null, new Date()));
     }
 }
 
