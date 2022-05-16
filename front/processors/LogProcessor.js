@@ -3,11 +3,13 @@
 */
 
 
-const { Theme } = require("./Theme");
-const { Message } = require('./Message');
+const { Theme } = require('../models/Theme');
+const { Message } = require('../../data/models/core/Message');
+const { BOTUSER } = require('../../data/models/core/User');
+const { GLOBAL } = require('../../data/models/core/Scope');
 
 class LogProcessor {
-    constructor(context, theme=Theme) {
+    constructor(context, theme = Theme) {
         this.context = context;
         this.theme = theme;
     }
@@ -21,7 +23,7 @@ class LogProcessor {
     }
 
     output(content) {
-        this.post(this.theme.apply(new Message('bot', 'local', content)));
+        this.post(this.theme.apply(new Message(BOTUSER, content, GLOBAL, GLOBAL, null, new Date())));
     }
 
     cleanup() {

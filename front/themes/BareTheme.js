@@ -3,7 +3,7 @@
 */
 
 
-const { Theme } = require("../../core/Theme");
+const { Theme } = require('../models/Theme');
 
 class BareTheme extends Theme {
     static width = 80;

@@ -1,15 +1,16 @@
 /*
-    A Theme that clearly distinguishes system and debug messages from output using a different frame and header.
+    A basic Theme that applies a chat-message-like border, header, and frame around the output.
 */
 
 
-const { Theme } = require("../../core/Theme");
+const { format, utcToZonedTime } = require("date-fns-tz");
+const { Theme } = require('../models/Theme');
 
-class LogTheme extends Theme {
+class ChatTheme extends Theme {
     static width = 80;
 
     static addBanner(message) {
-        let barrier = '%'.repeat(this.width);
+        let barrier = '-'.repeat(this.width);
         let tempMessage = message;
         tempMessage.content = `${barrier}\n${message.content}\n${barrier}`;
         return tempMessage;
@@ -17,7 +18,7 @@ class LogTheme extends Theme {
 
     static addHeader(message) {
         let tempMessage = message;
-        let header = `SYSTEM:`
+        let header = `From ${tempMessage.author} in ${tempMessage.source} @ ${format(tempMessage.time, 'HH:mm:ss')}:`
         tempMessage.content = `${header}\n${tempMessage.content}`;
         return tempMessage;
     }
@@ -29,4 +30,4 @@ class LogTheme extends Theme {
     }
 }
 
-module.exports = { LogTheme };
+module.exports = { ChatTheme };
