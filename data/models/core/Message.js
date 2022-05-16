@@ -3,7 +3,7 @@
 */
 
 
-const { Place } = require('./Place');
+const { Place } = require('./Scope');
 const { User } = require('./User');
 
 class Message {
@@ -45,6 +45,18 @@ class Message {
 
     get source() {
         return this._source;
+    }
+
+    set content(contentString) {
+        if (typeof contentString == 'string' || contentString == null) {
+            this._content = contentString;
+        } else {
+            throw `Content must be of type 'String' or null`;
+        }
+    }
+
+    get content() {
+        return this._content;
     }
 
     set destination(place) {
@@ -89,12 +101,12 @@ class Message {
 
     get details() {
         return `Message:\n` +
-        `  Author: ${this.author}\n` +
-        `  Source: ${this.source}\n` +
-        `  Destination: ${this.destination}\n` +
-        `  Recipient: ${this.recipient}\n` +
-        `  Content: ${this.content}\n` +
-        `  Time: ${this.time}`;
+            `  Author: ${this.author}\n` +
+            `  Source: ${this.source}\n` +
+            `  Destination: ${this.destination}\n` +
+            `  Recipient: ${this.recipient}\n` +
+            `  Content: ${this.content}\n` +
+            `  Time: ${this.time}`;
     }
 }
 

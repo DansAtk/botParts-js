@@ -3,8 +3,7 @@
 */
 
 
-const { TimeHolder } = require('./TimeHolder');
-const { Place, GLOBAL } = require('./Place');
+const { TimeHolder, Place, GLOBAL } = require('./Scope');
 const { User } = require('./User');
 
 class Group extends TimeHolder {
@@ -85,12 +84,12 @@ class Group extends TimeHolder {
 
     get details() {
         return `Group ${this}:\n` +
-        `  Scope - ${this.scope}\n` +
-        `  Timezone - ${this.tz ? this.tz : "None"}\n` +
-        `  Members:\n` +
-        `    Users - ${this.users.length}\n` +
-        `    Groups - ${this.groups.length}\n` +
-        `    Places - ${this.places.length}`
+            `  Scope - ${this.scope}\n` +
+            `  Timezone - ${this.tz ? this.tz : "None"}\n` +
+            `  Members:\n` +
+            `    Users - ${this.users.length}\n` +
+            `    Groups - ${this.groups.length}\n` +
+            `    Places - ${this.places.length}`
     }
 }
 

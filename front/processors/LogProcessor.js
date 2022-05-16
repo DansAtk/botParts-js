@@ -6,10 +6,10 @@
 const { Theme } = require('../models/Theme');
 const { Message } = require('../../data/models/core/Message');
 const { BOTUSER } = require('../../data/models/core/User');
-const { GLOBAL } = require('../../data/models/core/Place');
+const { GLOBAL } = require('../../data/models/core/Scope');
 
 class LogProcessor {
-    constructor(context, theme=Theme) {
+    constructor(context, theme = Theme) {
         this.context = context;
         this.theme = theme;
     }
