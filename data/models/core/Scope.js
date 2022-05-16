@@ -14,7 +14,7 @@ class ScopedObject {
 
     set id(idString) {
         if (typeof idString == 'string' || idString == null) {
-            this._id == idString;
+            this._id = idString;
         } else {
             throw `ID must be of type 'String' or null`;
         }
@@ -46,6 +46,10 @@ class ScopedObject {
 
     get name() {
         return this._name;
+    }
+
+    toString() {
+        return `${this.name ? this.name + "(" + this.id + ")" : this.id}`;
     }
 }
 
@@ -107,10 +111,6 @@ class Place extends TimeHolder {
 
     get trigger() {
         return this._trigger ? { 'provider': this, 'value': this._trigger } : this.scope.trigger;
-    }
-
-    toString() {
-        return `${this.name ? this.name + "(" + this.id + ")" : this.id}`;
     }
 
     get details() {

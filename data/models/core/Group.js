@@ -78,10 +78,6 @@ class Group extends TimeHolder {
         }
     }
 
-    toString() {
-        return `${this.name ? this.name + "(" + this.id + ")" : this.id}`
-    }
-
     get details() {
         return `Group ${this}:\n` +
             `  Scope - ${this.scope}\n` +

@@ -57,10 +57,6 @@ class User extends TimeHolder {
         return this._points;
     }
 
-    toString() {
-        return `${this.name ? this.name + "(" + this.id + ")" : this.id}`
-    }
-
     get details() {
         return `User ${this}:\n` +
             `  Scope - ${this.scope}\n` +
