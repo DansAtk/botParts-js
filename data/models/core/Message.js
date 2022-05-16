@@ -3,6 +3,9 @@
 */
 
 
+const { Place } = require('./Place');
+const { User } = require('./User');
+
 class Message {
     constructor(
         author = null,
@@ -18,6 +21,66 @@ class Message {
         this.destination = destination;
         this.recipient = recipient;
         this.time = time;
+    }
+
+    set author(user) {
+        if (user instanceof User || user == null) {
+            this._author = user;
+        } else {
+            throw `Author must be of type 'User' or null`;
+        }
+    }
+
+    get author() {
+        return this._author;
+    }
+
+    set source(place) {
+        if (place instanceof Place || place == null) {
+            this._source = place;
+        } else {
+            throw `Source must be of type 'Place' or null`;
+        }
+    }
+
+    get source() {
+        return this._source;
+    }
+
+    set destination(place) {
+        if (place instanceof Place || place == null) {
+            this._destination = place;
+        } else {
+            throw `Destination must be of type 'Place' or null`;
+        }
+    }
+
+    get destination() {
+        return this._destination;
+    }
+
+    set recipient(user) {
+        if (user instanceof User || user == null) {
+            this._recipient = user;
+        } else {
+            throw `Recipient must be of type 'User' or null`;
+        }
+    }
+
+    get recipient() {
+        return this._recipient;
+    }
+
+    set time(date) {
+        if (date instanceof Date || date == null) {
+            this._time = date;
+        } else {
+            throw `Time must be of type 'Date' or null`;
+        }
+    }
+
+    get time() {
+        return this._time;
     }
 
     toString() {

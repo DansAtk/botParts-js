@@ -4,7 +4,8 @@
 
 
 const { TimeHolder } = require('./TimeHolder');
-const { GLOBAL } = require('./Place');
+const { Place, GLOBAL } = require('./Place');
+const { User } = require('./User');
 
 class Group extends TimeHolder {
     constructor(
@@ -26,7 +27,11 @@ class Group extends TimeHolder {
     }
 
     addUser(user) {
-        this.members.get('users').push(user);
+        if (user instanceof User) {
+            this.members.get('users').push(user);
+        } else {
+            throw `Addition must be of type 'User'`;
+        }
     }
 
     removeUser(user) {
@@ -41,7 +46,11 @@ class Group extends TimeHolder {
     }
 
     addGroup(group) {
-        this.members.get('groups').push(group);
+        if (group instanceof Group) {
+            this.members.get('groups').push(group);
+        } else {
+            throw `Addition must be of type 'Group'`;
+        }
     }
 
     removeGroup(group) {
@@ -56,7 +65,11 @@ class Group extends TimeHolder {
     }
 
     addPlace(place) {
-        this.members.get('places').push(place);
+        if (place instanceof Place) {
+            this.members.get('places').push(place);
+        } else {
+            throw `Addition must be of type 'Place'`;
+        }
     }
 
     removePlace(place) {

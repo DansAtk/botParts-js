@@ -14,7 +14,15 @@ class Place extends TimeHolder {
         trigger = null
     ) {
         super(id, scope, tz, name);
-        this._trigger = trigger;
+        this.trigger = trigger;
+    }
+
+    set trigger(newTrigger) {
+        if ((typeof newTrigger == 'string' && newTrigger.length == 1) || newTrigger == null) {
+            this._trigger = newTrigger;
+        } else {
+            throw `Trigger must be of type 'String' and of length 1, or null`;
+        }
     }
 
     get trigger() {
