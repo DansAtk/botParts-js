@@ -3,30 +3,24 @@
 */
 
 
-const EventEmitter = require('events');
+const { APP } = require('../data/managers/GlobalManager');
 
 class BotController {
     constructor() {
         this.logProcess = null;
         this.outProcess = null;
         this.inProcess = null;
-        this.children = new Map();
-        this.emitter = new EventEmitter();
-        this.emitter.on('shutdown', this.cleanup);
+        APP.on('shutdown', this.cleanup);
     }
 
-    init() {
+    start() {
         this.logProcess.init();
         this.outProcess.init();
         this.inProcess.init();
     }
 
-    add(name, job) {
-        this.children.set(name, job);
-    }
-
-    remove(name) {
-        this.children.delete(name);
+    get(name) {
+        return this.data.get(name);
     }
 
     onMessage(message) {
@@ -45,10 +39,6 @@ class BotController {
         this.log("Shutting down...");
         this.inProcess.cleanup();
         this.outProcess.cleanup();
-
-        this.children.forEach((job) => {
-            job.cleanup();
-        })
 
         this.logProcess.cleanup();
     }

@@ -21,7 +21,7 @@ bot.inProcess = new BasicInputProcessor(bot);
 //bot.outProcess = new OneShotOutputProcessor(bot, BareTheme);
 //bot.inProcess = new OneShotInputProcessor(bot);
 
-bot.init();
+bot.start();
 
 // For handling unexpected shutdown via keyboard interrupt
 

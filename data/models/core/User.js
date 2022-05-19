@@ -67,6 +67,6 @@ class User extends TimeHolder {
     }
 }
 
-let BOTUSER = new User("0", "BOTUSER", GLOBAL);
+let BOTUSER = new User('BOTUSER', 'BOTUSER');
 
 module.exports = { User, BOTUSER };
