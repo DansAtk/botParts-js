@@ -1,8 +1,8 @@
 const { APP } = require('./GlobalManager');
 const { v4: uuidv4 } = require('uuid');
-const { DataManager } = require("./DataManager");
-const { Group } = require("../models/core/Group");
 const { GLOBAL } = require('../models/core/Scope');
+const { Group } = require("../models/core/Group");
+const { DataManager } = require("./DataManager");
 
 class GroupManager extends DataManager {
     constructor() {
@@ -15,6 +15,7 @@ class GroupManager extends DataManager {
 
         APP.get('events').on('placeremove', (place) => {
             this.clearPlace(place);
+            this.clearScope(place);
         })
     }
 
@@ -62,6 +63,14 @@ class GroupManager extends DataManager {
     clearPlace(place) {
         this.data.forEach(group => {
             group.removePlace(place.id);
+        });
+    }
+
+    clearScope(scope) {
+        this.data.forEach(group => {
+            if (group.scope == scope.id) {
+                this.remove(group);
+            }
         });
     }
 }

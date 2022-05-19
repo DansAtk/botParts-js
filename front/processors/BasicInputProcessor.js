@@ -3,17 +3,18 @@
 */
 
 
+const { APP } = require('../../data/managers/GlobalManager');
 const { InputProcessor } = require('../models/InputProcessor');
 const { Message } = require('../../data/models/core/Message');
 const { User } = require('../../data/models/core/User')
 const { Place } = require('../../data/models/core/Scope')
 
 class BasicInputProcessor extends InputProcessor {
-    constructor(context) {
-        super(context);
-        this.cliUser = new User("1", "cliuser");
-        this.inPlace = new Place("1", "stdin")
-        this.outPlace = new Place("2", "stdout")
+    constructor() {
+        super();
+        this.cliuser = new User('CLIUSER', 'CLIUSER');
+        this.stdin = new Place('STDIN', 'STDIN');
+        this.stdout = new Place('STDOUT', 'STDOUT');
     }
 
     init() {
@@ -24,7 +25,7 @@ class BasicInputProcessor extends InputProcessor {
     }
 
     processMessage(content) {
-        this.context.onMessage(new Message(this.cliUser, content.trim(), this.inPlace, this.outPlace, null, new Date()));
+        APP.get('events').emit('newmessage', new Message(this.cliuser, content.trim(), this.stdin, this.stdout, null, new Date()));
     }
 }
 

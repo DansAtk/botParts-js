@@ -3,17 +3,18 @@
 */
 
 
+const { APP } = require('../../data/managers/GlobalManager');
 const { OutputProcessor } = require('../models/OutputProcessor');
 const { Theme } = require('../models/Theme');
 
 class OneShotOutputProcessor extends OutputProcessor {
-    constructor(context, theme=Theme) {
-        super(context, theme);
+    constructor(theme = Theme) {
+        super(theme);
     }
 
     post(message) {
         console.log(message.content);
-        this.context.cleanup();
+        APP.get('events').emit('shutdown');
     }
 }
 

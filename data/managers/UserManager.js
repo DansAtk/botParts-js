@@ -9,6 +9,10 @@ class UserManager extends DataManager {
         super();
         this.add(BOTUSER);
         APP.add('users', this);
+
+        APP.get('events').on('placeremove', (place) => {
+            this.clearScope(place);
+        })
     }
 
     new(
@@ -47,6 +51,14 @@ class UserManager extends DataManager {
     remove(user) {
         APP.get('events').emit('userremove', user);
         return super.remove(user);
+    }
+
+    clearScope(place) {
+        this.data.forEach(user => {
+            if (user.scope == place.id) {
+                this.remove(user);
+            }
+        });
     }
 }
 

@@ -1,15 +1,10 @@
 class DataManager {
     constructor(storage = null, owner = null, name = null) {
         this.storage = storage;
-        this.owner = owner;
-        this.name = name;
         this.data = new Map();
     }
 
     init() {
-        if (this.name) {
-            this.owner.data.set(this.name, this);
-        }
     }
 
     add(key, obj) {

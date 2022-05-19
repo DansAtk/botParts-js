@@ -7,26 +7,27 @@
 */
 
 
+const { APP } = require('../../data/managers/GlobalManager');
 const { Theme } = require("./Theme");
 
 class OutputProcessor {
-    constructor(context, theme=Theme) {
-        this.context = context;
+    constructor(theme = Theme) {
         this.theme = theme;
+        APP.get('events').on('newmessage', (message) => this.output(message));
     }
 
     init() {
-        this.context.log("Output process initializing");
+        APP.get('events').emit('logmessage', "Output process initializing");
     }
 
-    post(message) {}
+    post(message) { }
 
     output(message) {
         this.post(this.theme.apply(message));
     }
 
     cleanup() {
-        this.context.log("Cleaning up output process");
+        APP.get('events').emit('logmessage', "Cleaning up output process");
     }
 }
 

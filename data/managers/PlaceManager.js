@@ -8,6 +8,10 @@ class PlaceManager extends DataManager {
         super();
         this.add(GLOBAL);
         APP.add('places', this);
+
+        APP.get('events').on('placeremove', (place) => {
+            this.clearScope(place);
+        })
     }
 
     new(
@@ -53,6 +57,14 @@ class PlaceManager extends DataManager {
 
         APP.get('events').emit('placeremove', place);
         return super.remove(place);
+    }
+
+    clearScope(scope) {
+        this.data.forEach(place => {
+            if (place.scope == scope.id) {
+                this.remove(place);
+            }
+        });
     }
 
     parentof(place) {
