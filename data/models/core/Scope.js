@@ -26,7 +26,7 @@ class ScopedObject {
 
     set scope(place) {
         if (place instanceof Place || place == null) {
-            this._scope = place;
+            this._scope = place == null ? null : place.id;
         } else {
             throw `Scope must be of type 'Place' or null`;
         }
@@ -93,12 +93,13 @@ class Place extends TimeHolder {
     constructor(
         id = null,
         name = null,
-        scope = GLOBAL,
+        scope = null,
         tz = null,
         trigger = null
     ) {
         super(id, scope, tz, name);
         this.trigger = trigger;
+        this.children = new Set();
     }
 
     set trigger(newTrigger) {
@@ -110,17 +111,34 @@ class Place extends TimeHolder {
     }
 
     get trigger() {
-        return this._trigger ? { 'provider': this, 'value': this._trigger } : this.scope.trigger;
+        return this._trigger;
     }
 
     get details() {
         return `Place ${this}:\n` +
             `  Scope - ${this.scope}\n` +
             `  Timezone - ${this.tz ? this.tz : "None"}\n` +
-            `  Trigger - ${this.trigger.value} (provided by ${this.trigger.provider})`;
+            `  Trigger - ${this.trigger}`;
+    }
+
+    addChild(place) {
+        if (place instanceof Place) {
+            if (this.children.has(place.id)) {
+                return false;
+            } else {
+                this.children.add(place.id);
+                return true;
+            }
+        } else {
+            throw `Place children must be of type 'Place'`;
+        }
+    }
+
+    removeChild(placeid) {
+        return this.children.delete(placeid);
     }
 }
 
-let GLOBAL = new Place("0", "GLOBAL", null, "America/New_York", '~');
+let GLOBAL = new Place('GLOBAL', 'GLOBAL', null, 'America/New_York', '~');
 
 module.exports = { ScopedObject, TimeHolder, Place, GLOBAL };

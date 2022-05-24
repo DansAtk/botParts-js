@@ -7,19 +7,20 @@
 */
 
 
+const { APP } = require('../../data/managers/GlobalManager');
+
 class InputProcessor {
-    constructor(context) {
-        this.context = context;
+    constructor() {
     }
 
     init() {
-        this.context.log("Input process initializing");
+        APP.get('events').emit('logmessage', "Input process initializing");
     }
 
-    processMessage() {}
+    processMessage() { }
 
     cleanup() {
-        this.context.log("Cleaning up input process");
+        APP.get('events').emit('logmessage', "Cleaning up input process");
     }
 }
 

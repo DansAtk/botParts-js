@@ -3,22 +3,20 @@
 */
 
 
-const { TimeHolder, Place, GLOBAL } = require('./Scope');
+const { TimeHolder, Place } = require('./Scope');
 const { User } = require('./User');
 
 class Group extends TimeHolder {
     constructor(
         id = null,
         name = null,
-        scope = GLOBAL,
+        scope = null,
         tz = null
     ) {
         super(id, scope, tz, name);
-        this.members = new Map([
-            ['users', new Array()],
-            ['groups', new Array()],
-            ['places', new Array()]
-        ]);
+        this.members = new Map()
+            .set('users', new Set())
+            .set('places', new Set());
     }
 
     get users() {
@@ -27,36 +25,19 @@ class Group extends TimeHolder {
 
     addUser(user) {
         if (user instanceof User) {
-            this.members.get('users').push(user);
+            if (this.users.has(user.id)) {
+                return false;
+            } else {
+                this.users.add(user.id);
+                return true;
+            }
         } else {
             throw `Addition must be of type 'User'`;
         }
     }
 
-    removeUser(user) {
-        const index = this.members.get('users').indexOf(user);
-        if (index > -1) {
-            this.members.get('users').splice(index, 1);
-        }
-    }
-
-    get groups() {
-        return this.members.get('groups');
-    }
-
-    addGroup(group) {
-        if (group instanceof Group) {
-            this.members.get('groups').push(group);
-        } else {
-            throw `Addition must be of type 'Group'`;
-        }
-    }
-
-    removeGroup(group) {
-        const index = this.members.get('groups').indexOf(group);
-        if (index > -1) {
-            this.members.get('groups').splice(index, 1);
-        }
+    removeUser(userid) {
+        return this.users.delete(userid);
     }
 
     get places() {
@@ -65,17 +46,19 @@ class Group extends TimeHolder {
 
     addPlace(place) {
         if (place instanceof Place) {
-            this.members.get('places').push(place);
+            if (this.places.has(place.id)) {
+                return false;
+            } else {
+                this.places.add(place.id);
+                return true;
+            }
         } else {
             throw `Addition must be of type 'Place'`;
         }
     }
 
-    removePlace(place) {
-        const index = this.members.get('places').indexOf(place);
-        if (index > -1) {
-            this.members.get('places').splice(index, 1);
-        }
+    removePlace(placeid) {
+        return this.places.delete(placeid);
     }
 
     get details() {
@@ -83,9 +66,8 @@ class Group extends TimeHolder {
             `  Scope - ${this.scope}\n` +
             `  Timezone - ${this.tz ? this.tz : "None"}\n` +
             `  Members:\n` +
-            `    Users - ${this.users.length}\n` +
-            `    Groups - ${this.groups.length}\n` +
-            `    Places - ${this.places.length}`
+            `    Users - ${this.users.size}\n` +
+            `    Places - ${this.places.size}`
     }
 }
 

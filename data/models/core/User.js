@@ -9,7 +9,7 @@ class User extends TimeHolder {
     constructor(
         id = null,
         name = null,
-        scope = GLOBAL,
+        scope = null,
         tz = null,
         bday = null,
         country = null,
@@ -67,6 +67,6 @@ class User extends TimeHolder {
     }
 }
 
-let BOTUSER = new User("0", "BOTUSER", GLOBAL);
+let BOTUSER = new User('BOTUSER', 'BOTUSER', GLOBAL);
 
 module.exports = { User, BOTUSER };
