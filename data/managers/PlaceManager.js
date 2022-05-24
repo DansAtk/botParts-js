@@ -225,7 +225,7 @@ class PlaceManager extends DataManager {
     }
 
     // Delete a place specified by ID from the parent's list of children
-    async deleteChild(childID) {
+    async removeChild(childID) {
         let qPlace = new Place();
         qPlace._scope = null;
         qPlace.children.add(childID);
@@ -238,6 +238,15 @@ class PlaceManager extends DataManager {
 
             await this.update(parent.id, parent);
         }
+    }
+
+    async addChild(parentID, childID) {
+        let parent = await this.get(parentID);
+        let child = await this.get(childID);
+
+        parent.addChild(child);
+
+        await this.update(parent.id, parent);
     }
 
     // Look up the effective trigger for a given place specified by ID, and where its value has been inherited from

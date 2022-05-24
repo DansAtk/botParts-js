@@ -227,6 +227,14 @@ class UserManager extends DataManager {
         await this.update(user.id, user);
     }
 
+    // Removes points from a user and updates their entry with the new value
+    async removePoints(userid, subtraction) {
+        let user = await this.get(userid);
+        user.points -= subtraction;
+
+        await this.update(user.id, user);
+    }
+
     // Sets up a new container for user storage
     async init() {
         let datapack = new DataPack(".", "testDB.db", "users");

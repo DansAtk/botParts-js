@@ -11,12 +11,12 @@ class GroupManager extends DataManager {
         APP.add('groups', this);
 
         APP.get('events').on('userdelete', (userid) => {
-            this.deleteUser(userid);
+            this.deleteMemberUser(userid);
         })
 
         APP.get('events').on('placedelete', (placeid) => {
             this.deleteScope(placeid);
-            this.deletePlace(placeid);
+            this.deleteMemberPlace(placeid);
         })
     }
 
@@ -266,7 +266,7 @@ class GroupManager extends DataManager {
     }
 
     // Removes a user specified by ID from all groups it was a member of
-    async deleteUser(userid) {
+    async deleteMemberUser(userid) {
         let memberships = await this.findUserMemberships(userid);
 
         for (let group of memberships) {
@@ -277,7 +277,7 @@ class GroupManager extends DataManager {
     }
 
     // Removes a place specified by ID from all groups it was a member of
-    async deletePlace(placeid) {
+    async deleteMemberPlace(placeid) {
         let memberships = await this.findPlaceMemberships(placeid);
 
         for (let group of memberships) {
