@@ -15,12 +15,14 @@ const { OneShotOutputProcessor } = require('../front/processors/OneShotOutputPro
 const { LogTheme } = require('../front/themes/LogTheme');
 const { ChatTheme } = require('../front/themes/ChatTheme');
 const { BareTheme } = require('../front/themes/BareTheme');
+const SQLiteManager = require('../data/storage/SQLiteManager');
 
 class BotController {
     constructor() {
         new GroupManager();
         new UserManager();
         new PlaceManager();
+        new SQLiteManager();
 
         APP.add('logging', new LogProcessor());
 
