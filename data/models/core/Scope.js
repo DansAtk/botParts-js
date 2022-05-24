@@ -93,7 +93,7 @@ class Place extends TimeHolder {
     constructor(
         id = null,
         name = null,
-        scope = GLOBAL,
+        scope = null,
         tz = null,
         trigger = null
     ) {

@@ -7,15 +7,15 @@ const { DataPack } = require('../storage/DataPack');
 class PlaceManager extends DataManager {
     constructor() {
         super();
-        this.add(GLOBAL);
         APP.add('places', this);
 
-        APP.get('events').on('placeremove', (place) => {
-            this.deleteScope(place);
+        APP.get('events').on('placedelete', (scopeid) => {
+            this.deleteScope(scopeid);
         })
     }
 
-    new(
+    // Generate a new Place object with a unique ID
+    async new(
         name = null,
         scope = GLOBAL,
         tz = null,
@@ -23,185 +23,245 @@ class PlaceManager extends DataManager {
     ) {
         let id = uuidv4();
 
-        while (this.get(id)) {
+        while (await this.get(id)) {
             id = uuidv4();
         }
 
-        let newPlace = new Place(id, name, scope, tz, trigger);
-        this.add(newPlace);
-        return newPlace;
+        return new Place(id, name, scope, tz, trigger);
     }
 
-    /*
-    add(place) {
-        if (place.scope) {
-            if (this.data.has(place.scope)) {
-                this.get(place.scope).addChild(place);
-            }
-        }
-
-        APP.get('events').emit('placeadd', place);
-
-        return super.add(place.id, place);
-    }
-    */
-
-    // Create an entry for a new place in storage
+    // Create a new entry for a place
     async add(newPlace) {
         // Build a datapack from the passed place
         let datapack = new DataPack(".", "testDB.db", "places");
+        datapack.key = 'id';
         datapack.addValue("id", newPlace.id);
         datapack.addValue("name", newPlace.name);
         datapack.addValue("scope", newPlace.scope);
         datapack.addValue("tz", newPlace.tz);
         datapack.addValue("trigger", newPlace.trigger);
-        let childString = [...newPlace.children].join(',');
-        datapack.addValue("children", childString);
+        datapack.addValue("children", [...newPlace.children].join(','));
 
         // Submit request for storage of the datapack to the storage manager
-        await APP.get('store').add(datapack);
+        let newPlaceID = await APP.get('store').add(datapack);
 
-        //Return true
-        return true;
+        if (newPlaceID) {
+            APP.get('events').emit('placeadd', newPlaceID);
+            return newPlaceID;
+        } else {
+            return false;
+        }
     }
 
-    get(placeid) {
-        return super.get(placeid);
-    }
-
-    // Load place(s) from storage that have values matching the provided place object
-    async get(queryPlace) {
-        // Build a datapack from the passed place object, using its values as a query
+    // Get a single place directly via its ID
+    async get(placeid) {
         let datapack = new DataPack(".", "testDB.db", "places");
-        datapack.addQuery("id", queryPlace.id);
-        datapack.addQuery("name", queryPlace.name);
-        datapack.addQuery("scope", queryPlace.scope);
-        datapack.addQuery("tz", queryPlace.tz);
-        datapack.addQuery("trigger", queryPlace.trigger);
-        datapack.addQuery("children", null);
+        datapack.key = 'id';
+        datapack.addQuery('id', placeid);
 
-        // Submit query to storage manager
-        let results = await APP.get('store').get(datapack);
+        let result = await APP.get('store').get(datapack);
 
-        // Repackage results back into Place objects and store them in an array
-        let resultPlaces = new Array();
-        for (let resIndex in results) {
-            let res = results[resIndex];
-            let resultPlace = new Place(res.id, res.name, null, res.tz, res.trigger);
-            // Set scope using '_scope' to bypass type checking in 'scope's setter function
-            resultPlace._scope = res.scope;
+        if (result) {
+            let resultPlace = new Place(result.id, result.name, null, result.tz, result.trigger);
+            resultPlace._scope = result.scope;
             // Parse children from comma separated string and add each to the place
-            if (res.children.length > 0) {
-                const children = res.children.split(',');
+            if (result.children.length > 0) {
+                const children = result.children.split(',');
                 for (let childIndex in children) {
                     resultPlace.children.add(children[childIndex]);
                 }
             }
 
-            resultPlaces.push(resultPlace);
+            return resultPlace;
+        } else {
+            return false;
         }
-
-        // Return all found places
-        return resultPlaces;
     }
 
-    edit(place) {
-        APP.get('events').emit('placeedit', place);
-        return super.edit(place.id, place);
-    }
-
-    async update(queryPlace, updatePlace) {
+    // Find places that have properties matching the query place object
+    async find(queryPlace) {
+        // Build a datapack from the passed place object, using its values as a query
         let datapack = new DataPack(".", "testDB.db", "places");
-        datapack.addQuery("id", queryPlace.id);
-        datapack.addQuery("name", queryPlace.name);
-        datapack.addQuery("scope", queryPlace.scope);
-        datapack.addQuery("tz", queryPlace.tz);
-        datapack.addQuery("trigger", queryPlace.trigger);
+        datapack.key = 'id';
+        if (queryPlace.id) datapack.addQuery("id", queryPlace.id);
+        if (queryPlace.name) datapack.addQuery("name", queryPlace.name);
+        if (queryPlace.scope) datapack.addQuery("scope", queryPlace.scope);
+        if (queryPlace.tz) datapack.addQuery("tz", queryPlace.tz);
+        if (queryPlace.trigger) datapack.addQuery("trigger", queryPlace.trigger);
+        if (queryPlace.children.size > 0) datapack.addQuery("children", [...queryPlace.children].join(','));
+
+        // Submit query to storage manager
+        let results = await APP.get('store').find(datapack);
+
+        // Repackage results back into Place objects and store them in an array
+        if (results) {
+            let resultPlaces = new Array();
+            for (let index in results) {
+                let res = results[index];
+                let resultPlace = new Place(res.id, res.name, null, res.tz, res.trigger);
+                // Set scope using '_scope' to bypass type checking in 'scope's setter function
+                resultPlace._scope = res.scope;
+                // Parse children from comma separated string and add each to the place
+                if (res.children.length > 0) {
+                    const children = res.children.split(',');
+                    for (let childIndex in children) {
+                        resultPlace.children.add(children[childIndex]);
+                    }
+                }
+
+                resultPlaces.push(resultPlace);
+            }
+
+            // Return an array of all found places
+            return resultPlaces;
+        } else {
+            return false;
+        }
+    }
+
+    // Overwrite the place specified by ID with values in updatePlace
+    async update(placeid, updatePlace) {
+        let datapack = new DataPack(".", "testDB.db", "places");
+        datapack.key = 'id';
+        datapack.addQuery("id", placeid);
 
         datapack.addValue("id", updatePlace.id);
         datapack.addValue("name", updatePlace.name);
         datapack.addValue("scope", updatePlace.scope);
         datapack.addValue("tz", updatePlace.tz);
         datapack.addValue("trigger", updatePlace.trigger);
-        if (updatePlace.children.size > 0) {
-            let childString = [...updatePlace.children].join(',');
-            datapack.addValue("children", childString);
+        if (updatePlace.children.size > 0) datapack.addValue("children", [...updatePlace.children].join(','));
+
+        let updatedPlaceID = await APP.get('store').update(datapack);
+
+        if (updatedPlaceID) {
+            APP.get('events').emit('placeupdate', updatedPlaceID);
+            return updatedPlaceID;
+        } else {
+            return false;
         }
-
-        // Submit update request to storage manager
-        await APP.get('store').edit(datapack);
-
-        // Return true
-        return true;
     }
 
-    remove(place) {
-        this.parentof(place).removeChild(place.id);
+    // Update all places matching query values with values in updatePlace
+    async findUpdate(queryPlace, updatePlace) {
+        let datapack = new DataPack(".", "testDB.db", "places");
+        datapack.key = 'id';
+        if (queryPlace.id) datapack.addQuery("id", queryPlace.id);
+        if (queryPlace.name) datapack.addQuery("name", queryPlace.name);
+        if (queryPlace.scope) datapack.addQuery("scope", queryPlace.scope);
+        if (queryPlace.tz) datapack.addQuery("tz", queryPlace.tz);
+        if (queryPlace.trigger) datapack.addQuery("trigger", queryPlace.trigger);
+        if (queryPlace.children.size > 0) datapack.addQuery("children", [...queryPlace.children].join(','));
 
-        APP.get('events').emit('placeremove', place);
-        return super.remove(place);
+        if (updatePlace.id) datapack.addValue("id", updatePlace.id);
+        if (updatePlace.name) datapack.addValue("name", updatePlace.name);
+        if (updatePlace.scope) datapack.addValue("scope", updatePlace.scope);
+        if (updatePlace.tz) datapack.addValue("tz", updatePlace.tz);
+        if (updatePlace.trigger) datapack.addValue("trigger", updatePlace.trigger);
+        if (updatePlace.children.size > 0) datapack.addValue("children", [...updatePlace.children].join(','));
+
+        // Submit update request to storage manager
+        let updatedPlaceIDs = await APP.get('store').findUpdate(datapack);
+
+        if (updatedPlaceIDs) {
+            for (let placeid of updatedPlaceIDs) {
+                APP.get('events').emit('placeupdate', placeid);
+            }
+
+            return updatedPlaceIDs;
+        } else {
+            return false;
+        }
+    }
+
+    // Deletes a single place selected via its exact ID
+    async delete(placeid) {
+        let datapack = new DataPack(".", "testDB.db", "places");
+        datapack.key = 'id';
+        datapack.addQuery("id", placeid);
+
+        let deletedPlaceID = await APP.get('store').delete(datapack);
+
+        if (deletedPlaceID) {
+            APP.get('events').emit('placedelete', deletedPlaceID);
+
+            return deletedPlaceID;
+        } else {
+            return false;
+        }
     }
 
     // Remove place(s) from storage matching the provided place
-    async remove(queryPlace) {
-        APP.get('events').emit('placeremove', queryPlace);
+    async findDelete(queryPlace) {
         // Build a datapack using the passed in place for query values
         let datapack = new DataPack(".", "testDB.db", "places");
-        datapack.addQuery("id", queryPlace.id);
-        datapack.addQuery("name", queryPlace.name);
-        datapack.addQuery("scope", queryPlace.scope);
-        datapack.addQuery("tz", queryPlace.tz);
-        datapack.addQuery("trigger", queryPlace.trigger);
+        datapack.key = 'id';
+        if (queryPlace.id) datapack.addQuery("id", queryPlace.id);
+        if (queryPlace.name) datapack.addQuery("name", queryPlace.name);
+        if (queryPlace.scope) datapack.addQuery("scope", queryPlace.scope);
+        if (queryPlace.tz) datapack.addQuery("tz", queryPlace.tz);
+        if (queryPlace.trigger) datapack.addQuery("trigger", queryPlace.trigger);
+        if (queryPlace.children.size > 0) datapack.addQuery("children", [...queryPlace.children].join(','));
 
         // Submit removal request to storage manager
-        await APP.get('store').remove(datapack);
+        let deletedPlaceIDs = await APP.get('store').findDelete(datapack);
 
-        // Return true
-        return true;
-    }
-
-    clearScope(scope) {
-        this.data.forEach(place => {
-            if (place.scope == scope.id) {
-                this.remove(place);
+        if (deletedPlaceIDs) {
+            for (let placeid of deletedPlaceIDs) {
+                APP.get('events').emit('placedelete', placeid);
             }
-        });
-    }
 
-    async deleteScope(queryScope) {
-        let datapack = new DataPack(".", "testDB.db", "places");
-        datapack.addQuery("scope", queryScope.id);
-
-        await APP.get('store').remove(datapack);
-
-        return true;
-    }
-
-    parentof(place) {
-        if (place instanceof Place) {
-            return place.scope ? this.get(place.scope) : null;
+            return deletedPlaceIDs;
         } else {
-            throw `Parent requires a valid place object`;
+            return false;
         }
     }
 
-    triggerof(place) {
-        if (place instanceof Place) {
-            return place.trigger ? { 'provider': place, 'value': place.trigger } : this.triggerof(this.parentof(place));
-        } else {
-            throw `Trigger requires a valid place object`;
+    // Delete all places that are part of the given scope (specified by ID)
+    async deleteScope(scopeid) {
+        let qPlace = new Place();
+        qPlace._scope = scopeid;
+        return await this.findDelete(qPlace);
+    }
+
+    // Delete a place specified by ID from the parent's list of children
+    async deleteChild(childID) {
+        let qPlace = new Place();
+        qPlace._scope = null;
+        qPlace.children.add(childID);
+
+        let results = await this.find(qPlace);
+
+        if (results) {
+            let parent = results[0];
+            parent.removeChild(childID);
+
+            await this.update(parent.id, parent);
         }
     }
 
+    // Look up the effective trigger for a given place specified by ID, and where its value has been inherited from
+    async triggerof(placeid) {
+        var provider = await this.get(placeid);
+
+        while (!(provider.trigger)) {
+            provider = await this.get(provider.scope);
+        }
+
+        return { provider: provider, trigger: provider.trigger };
+    }
+
+    // Sets up a new container for place storage
     async init() {
         let datapack = new DataPack(".", "testDB.db", "places");
-        datapack.addValue("id", "TEXT");
+        datapack.addValue("id", "TEXT PRIMARY KEY");
         datapack.addValue("name", "TEXT");
         datapack.addValue("scope", "TEXT");
         datapack.addValue("tz", "TEXT");
         datapack.addValue("trigger", "TEXT");
         datapack.addValue("children", "TEXT");
         await APP.get('store').newContainer(datapack);
+        await this.add(GLOBAL);
         return true;
     }
 }

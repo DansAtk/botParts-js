@@ -3,14 +3,14 @@
 */
 
 
-const { TimeHolder, Place, GLOBAL } = require('./Scope');
+const { TimeHolder, Place } = require('./Scope');
 const { User } = require('./User');
 
 class Group extends TimeHolder {
     constructor(
         id = null,
         name = null,
-        scope = GLOBAL,
+        scope = null,
         tz = null
     ) {
         super(id, scope, tz, name);

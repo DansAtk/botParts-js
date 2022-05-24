@@ -15,7 +15,7 @@ class UserManager extends DataManager {
         })
     }
 
-    // Generate a new user with an ID not yet used
+    // Generate a new User object with a unique ID
     async new(
         name = null,
         scope = GLOBAL,
@@ -33,7 +33,7 @@ class UserManager extends DataManager {
         return new User(id, name, scope, tz, bday, country, points);
     }
 
-    // Create an entry for a new user in storage
+    // Create a new entry for a user
     async add(newUser) {
         // Build a datapack from the passed user
         let datapack = new DataPack(".", "testDB.db", "users");
@@ -74,18 +74,18 @@ class UserManager extends DataManager {
         }
     }
 
-    // Find users from storage that have values matching the provided user object
+    // Find users that have properties matching the query user object
     async find(queryUser) {
         // Build a datapack from the passed user object, using its values as a query
         let datapack = new DataPack(".", "testDB.db", "users");
         datapack.key = 'id';
-        datapack.addQuery("id", queryUser.id);
-        datapack.addQuery("name", queryUser.name);
-        datapack.addQuery("scope", queryUser.scope);
-        datapack.addQuery("tz", queryUser.tz);
-        datapack.addQuery("bday", queryUser.bday);
-        datapack.addQuery("country", queryUser.country);
-        datapack.addQuery("points", queryUser.points);
+        if (queryUser.id) datapack.addQuery("id", queryUser.id);
+        if (queryUser.name) datapack.addQuery("name", queryUser.name);
+        if (queryUser.scope) datapack.addQuery("scope", queryUser.scope);
+        if (queryUser.tz) datapack.addQuery("tz", queryUser.tz);
+        if (queryUser.bday) datapack.addQuery("bday", queryUser.bday);
+        if (queryUser.country) datapack.addQuery("country", queryUser.country);
+        if (queryUser.points != null) datapack.addQuery("points", queryUser.points);
 
         // Submit query to storage manager
         let results = await APP.get('store').find(datapack);
@@ -108,7 +108,7 @@ class UserManager extends DataManager {
         }
     }
 
-    // Update the values supplied in updateUser to the user with the exact ID specified
+    // Overwrite the user specified by ID with values in updateUser
     async update(userid, updateUser) {
         let datapack = new DataPack(".", "testDB.db", "users");
         datapack.key = 'id';
@@ -134,25 +134,25 @@ class UserManager extends DataManager {
         }
     }
 
-    // Update the values supplied in updateUser to all matching 
+    // Update all users matching query values with values in updateUser
     async findUpdate(queryUser, updateUser) {
         let datapack = new DataPack(".", "testDB.db", "users");
         datapack.key = 'id';
-        datapack.addQuery("id", queryUser.id);
-        datapack.addQuery("name", queryUser.name);
-        datapack.addQuery("scope", queryUser.scope);
-        datapack.addQuery("tz", queryUser.tz);
-        datapack.addQuery("bday", queryUser.bday);
-        datapack.addQuery("country", queryUser.country);
-        datapack.addQuery("points", queryUser.points);
+        if (queryUser.id) datapack.addQuery("id", queryUser.id);
+        if (queryUser.name) datapack.addQuery("name", queryUser.name);
+        if (queryUser.scope) datapack.addQuery("scope", queryUser.scope);
+        if (queryUser.tz) datapack.addQuery("tz", queryUser.tz);
+        if (queryUser.bday) datapack.addQuery("bday", queryUser.bday);
+        if (queryUser.country) datapack.addQuery("country", queryUser.country);
+        if (queryUser.points != null) datapack.addQuery("points", queryUser.points);
 
-        datapack.addValue("id", updateUser.id);
-        datapack.addValue("name", updateUser.name);
-        datapack.addValue("scope", updateUser.scope);
-        datapack.addValue("tz", updateUser.tz);
-        datapack.addValue("bday", updateUser.bday);
-        datapack.addValue("country", updateUser.country);
-        datapack.addValue("points", updateUser.points);
+        if (updateUser.id) datapack.addValue("id", updateUser.id);
+        if (updateUser.name) datapack.addValue("name", updateUser.name);
+        if (updateUser.scope) datapack.addValue("scope", updateUser.scope);
+        if (updateUser.tz) datapack.addValue("tz", updateUser.tz);
+        if (updateUser.bday) datapack.addValue("bday", updateUser.bday);
+        if (updateUser.country) datapack.addValue("country", updateUser.country);
+        if (updateUser.points != null) datapack.addValue("points", updateUser.points);
 
         // Submit update request to storage manager
         let updatedUserIDs = await APP.get('store').findUpdate(datapack);
@@ -190,13 +190,13 @@ class UserManager extends DataManager {
         // Build a datapack using the passed in user for query values
         let datapack = new DataPack(".", "testDB.db", "users");
         datapack.key = 'id';
-        datapack.addQuery("id", queryUser.id);
-        datapack.addQuery("name", queryUser.name);
-        datapack.addQuery("scope", queryUser.scope);
-        datapack.addQuery("tz", queryUser.tz);
-        datapack.addQuery("bday", queryUser.bday);
-        datapack.addQuery("country", queryUser.country);
-        datapack.addQuery("points", queryUser.points);
+        if (queryUser.id) datapack.addQuery("id", queryUser.id);
+        if (queryUser.name) datapack.addQuery("name", queryUser.name);
+        if (queryUser.scope) datapack.addQuery("scope", queryUser.scope);
+        if (queryUser.tz) datapack.addQuery("tz", queryUser.tz);
+        if (queryUser.bday) datapack.addQuery("bday", queryUser.bday);
+        if (queryUser.country) datapack.addQuery("country", queryUser.country);
+        if (queryUser.points != null) datapack.addQuery("points", queryUser.points);
 
         // Submit removal request to storage manager
         let deletedUserIDs = await APP.get('store').findDelete(datapack);
@@ -212,11 +212,19 @@ class UserManager extends DataManager {
         }
     }
 
-    // Deletes all users with the given scope
+    // Delete all users that are part of the given scope (specified by ID)
     async deleteScope(scopeid) {
         let qUser = new User();
         qUser._scope = scopeid;
         return await this.findDelete(qUser);
+    }
+
+    // Adds points to a user and updates their entry with the new value
+    async addPoints(userid, addition) {
+        let user = await this.get(userid);
+        user.points += addition;
+
+        await this.update(user.id, user);
     }
 
     // Sets up a new container for user storage
@@ -230,7 +238,7 @@ class UserManager extends DataManager {
         datapack.addValue("country", "TEXT");
         datapack.addValue("points", "INTEGER");
         await APP.get('store').newContainer(datapack);
-        this.add(BOTUSER);
+        await this.add(BOTUSER);
         return true;
     }
 }

@@ -130,6 +130,9 @@ class SQLiteManager {
             driver: sqlite3.Database
         });
 
+        console.log(datapack.values);
+        console.log(datapack.queries);
+
         let values = new Array();
 
         let valuesArray = Object.entries(datapack.values);
