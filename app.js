@@ -3,8 +3,8 @@
 */
 
 
-const { APP } = require('./data/managers/GlobalManager');
-const { BotController } = require('./core/BotController');
+const { APP } = require('./bot/data/managers/GlobalManager');
+const { BotController } = require('./bot/BotController');
 
 let bot = new BotController();
 
