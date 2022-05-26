@@ -5,7 +5,6 @@ const path = require('node:path');
 
 class SQLiteController {
     constructor() {
-        APP.add('store', this);
     }
 
     async add(datapack) {

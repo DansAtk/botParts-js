@@ -5,8 +5,6 @@ const { DataPack } = require('../storage/DataPack');
 
 class PlaceManager {
     constructor() {
-        APP.add('places', this);
-
         APP.get('events').on('placedelete', (scopeid) => {
             this.deleteScope(scopeid);
         })
@@ -248,14 +246,14 @@ class PlaceManager {
     }
 
     // Look up the effective trigger for a given place specified by ID, and where its value has been inherited from
-    async triggerof(placeid) {
-        var provider = await this.get(placeid);
+    async triggerof(place) {
+        var provider = place;
 
         while (!(provider.trigger)) {
             provider = await this.get(provider.scope);
         }
 
-        return { provider: provider, trigger: provider.trigger };
+        return { provider: provider.id, value: provider.trigger };
     }
 
     // Sets up a new container for place storage

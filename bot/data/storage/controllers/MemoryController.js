@@ -2,7 +2,6 @@ const { APP } = require('../../managers/GlobalManager');
 
 class MemoryController {
     constructor() {
-        APP.add('store', this);
         this.data = new Map();
     }
 

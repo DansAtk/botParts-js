@@ -6,8 +6,6 @@ const { DataPack } = require('../storage/DataPack');
 
 class GroupManager {
     constructor() {
-        APP.add('groups', this);
-
         APP.get('events').on('userdelete', (userid) => {
             this.deleteMemberUser(userid);
         })

@@ -6,8 +6,6 @@ const { DataPack } = require('../storage/DataPack');
 
 class UserManager {
     constructor() {
-        APP.add('users', this);
-
         APP.get('events').on('placedelete', (scopeid) => {
             this.deleteScope(scopeid);
         })
@@ -20,7 +18,7 @@ class UserManager {
         tz = null,
         bday = null,
         country = null,
-        points = null
+        points = 0
     ) {
         let id = uuidv4();
 

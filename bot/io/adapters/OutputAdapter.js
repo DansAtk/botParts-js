@@ -13,7 +13,7 @@ const { Theme } = require("../themes/Theme");
 class OutputAdapter {
     constructor(theme = Theme) {
         this.theme = theme;
-        APP.get('events').on('newmessage', (message) => this.output(message));
+        APP.get('events').on('outmessage', (message) => this.output(message));
     }
 
     init() {

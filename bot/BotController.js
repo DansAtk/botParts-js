@@ -10,30 +10,25 @@ const { GroupManager } = require('./data/managers/GroupManager');
 const { LogAdapter } = require('./io/adapters/LogAdapter');
 const { BasicOutputAdapter } = require('./io/adapters/Basic/BasicOutputAdapter');
 const { BasicInputAdapter } = require('./io/adapters/Basic/BasicInputAdapter');
-const { OneShotInputAdapter } = require('./io/adapters/OneShot/OneShotInputAdapter');
-const { OneShotOutputAdapter } = require('./io/adapters/OneShot/OneShotOutputAdapter');
-const { LogTheme } = require('./io/themes/LogTheme');
 const { ChatTheme } = require('./io/themes/ChatTheme');
-const { BareTheme } = require('./io/themes/BareTheme');
 const { SQLiteController } = require('./data/storage/controllers/SQLiteController');
+const { Dispatcher } = require('./commands/Dispatcher');
+const { CommandManager } = require('./commands/CommandManager');
 
 class BotController {
     constructor() {
-        new GroupManager();
-        new UserManager();
-        new PlaceManager();
-        new SQLiteController();
+        APP.add('groups', new GroupManager());
+        APP.add('users', new UserManager());
+        APP.add('places', new PlaceManager());
+        APP.add('store', new SQLiteController());
+        APP.add('commands', new CommandManager());
+        APP.add('dispatcher', new Dispatcher());
 
         APP.add('logging', new LogAdapter());
-
-        // Uncomment to use REPL mode
         APP.add('output', new BasicOutputAdapter(ChatTheme));
         APP.add('input', new BasicInputAdapter());
 
-        // Uncomment to use OneShot mode
-        //APP.add('output', new OneShotOutputAdapter(BareTheme));
-        //APP.add('input', new OneShotInputAdapter());
-
+        APP.get('events').on('inmessage', (message) => APP.get('dispatcher').parse(message));
         APP.get('events').on('shutdown', this.cleanup);
     }
 

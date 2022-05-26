@@ -13,8 +13,8 @@ class BasicInputAdapter extends InputAdapter {
     constructor() {
         super();
         this.cliuser = new User('CLIUSER', 'CLIUSER', GLOBAL);
-        this.stdin = new Place('STDIN', 'STDIN');
-        this.stdout = new Place('STDOUT', 'STDOUT');
+        this.stdin = new Place('STDIN', 'STDIN', GLOBAL, 'America/New_York', '!');
+        this.stdout = new Place('STDOUT', 'STDOUT', GLOBAL, 'America/New_York', '!');
     }
 
     init() {
@@ -25,7 +25,7 @@ class BasicInputAdapter extends InputAdapter {
     }
 
     processMessage(content) {
-        APP.get('events').emit('newmessage', new Message(this.cliuser, content.trim(), this.stdin, this.stdout, null, new Date()));
+        APP.get('events').emit('inmessage', new Message(this.cliuser, content.trim(), this.stdin, this.stdout, null, new Date()));
     }
 }
 

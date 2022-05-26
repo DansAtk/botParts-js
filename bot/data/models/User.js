@@ -77,7 +77,7 @@ class User extends ScopedObject {
             `  Timezone - ${this.tz ? this.tz : "None"}\n` +
             `  Birthday - ${this.bday ? this.bday : "None"}\n` +
             `  Country - ${this.country ? this.country : "None"}\n` +
-            `  Points - ${this.points ? this.points : "None"}`
+            `  Points - ${this.points != null ? this.points : "None"}`
     }
 }
 
