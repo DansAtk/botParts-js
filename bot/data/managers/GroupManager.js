@@ -1,5 +1,4 @@
 const { APP } = require('./GlobalManager');
-const { v4: uuidv4 } = require('uuid');
 const { GLOBAL } = require('../models/Place');
 const { Group } = require("../models/Group");
 const { DataPack } = require('../storage/DataPack');
@@ -22,11 +21,7 @@ class GroupManager {
         scope = GLOBAL,
         tz = null
     ) {
-        let id = uuidv4();
-
-        while (await this.get(id)) {
-            id = uuidv4();
-        }
+        let id = await APP.get('buids').new();
 
         return new Group(id, name, scope, tz);
     }
@@ -224,6 +219,52 @@ class GroupManager {
         }
     }
 
+    // Retrieves all groups
+    async all() {
+        let datapack = new DataPack(".", "testDB.db", "groups");
+
+        let results = await APP.get('store').all(datapack);
+
+        if (results) {
+            let resultGroups = new Array();
+            for (let index in results) {
+                let res = results[index];
+                let resultGroup = new Group(res.id, res.name, null, res.tz);
+                // Set scope using '_scope' to bypass type checking in 'scope's setter function
+                resultGroup._scope = res.scope;
+                // Parse users and places from comma separated strings and add each to the group
+                if (res.users.length > 0) {
+                    const users = res.users.split(',');
+                    for (let userIndex in users) {
+                        resultGroup.users.add(users[userIndex]);
+                    }
+                }
+
+                if (res.places.length > 0) {
+                    const places = res.places.split(',');
+                    for (let placeIndex in places) {
+                        resultGroup.places.add(places[placeIndex]);
+                    }
+                }
+
+                resultGroups.push(resultGroup);
+            }
+
+            // Return an array of all found groups
+            return resultGroups;
+        } else {
+            return false;
+        }
+    }
+
+    // Deletes all group entries
+    async clear() {
+        let datapack = new Datapack(".", "testDB.db", "groups");
+
+        await APP.get('store').clear(datapack);
+        return true;
+    }
+
     // Delete all groups that are part of the given scope (specified by ID)
     async deleteScope(scopeid) {
         let qGroup = new Group();
@@ -265,10 +306,12 @@ class GroupManager {
     async deleteMemberUser(userid) {
         let memberships = await this.findUserMemberships(userid);
 
-        for (let group of memberships) {
-            group.removeUser(userid);
+        if (memberships) {
+            for (let group of memberships) {
+                group.removeUser(userid);
 
-            await this.update(group.id, group);
+                await this.update(group.id, group);
+            }
         }
     }
 
@@ -276,15 +319,17 @@ class GroupManager {
     async deleteMemberPlace(placeid) {
         let memberships = await this.findPlaceMemberships(placeid);
 
-        for (let group of memberships) {
-            group.removePlace(placeid);
+        if (memberships) {
+            for (let group of memberships) {
+                group.removePlace(placeid);
 
-            await this.update(group.id, group);
+                await this.update(group.id, group);
+            }
         }
     }
 
     // Sets up a new container for group storage
-    async init() {
+    async setup() {
         let datapack = new DataPack(".", "testDB.db", "groups");
         datapack.addValue("id", "TEXT PRIMARY KEY");
         datapack.addValue("name", "TEXT");
@@ -293,6 +338,14 @@ class GroupManager {
         datapack.addValue("users", "TEXT");
         datapack.addValue("places", "TEXT");
         await APP.get('store').newContainer(datapack);
+        return true;
+    }
+
+    // Removes/deletes the groups container
+    async raze() {
+        let datapack = new DataPack(".", "testDB.db", "groups");
+
+        await APP.get('store').deleteContainer(datapack);
         return true;
     }
 }
