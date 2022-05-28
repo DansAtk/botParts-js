@@ -47,7 +47,7 @@ class Place extends ScopedObject {
         return `Place ${this}:\n` +
             `  Scope - ${this.scope}\n` +
             `  Timezone - ${this.tz ? this.tz : "None"}\n` +
-            `  Trigger - ${this.trigger}`;
+            `  Trigger - ${this.trigger ? this.trigger : 'Not Set'}`;
     }
 
     addChild(place) {

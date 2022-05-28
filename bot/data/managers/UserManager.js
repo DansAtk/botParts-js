@@ -1,13 +1,10 @@
 const { APP } = require('./GlobalManager');
-const { v4: uuidv4 } = require('uuid');
 const { GLOBAL } = require('../models/Place');
 const { User, BOTUSER } = require('../models/User');
 const { DataPack } = require('../storage/DataPack');
 
 class UserManager {
     constructor() {
-        APP.add('users', this);
-
         APP.get('events').on('placedelete', (scopeid) => {
             this.deleteScope(scopeid);
         })
@@ -20,13 +17,9 @@ class UserManager {
         tz = null,
         bday = null,
         country = null,
-        points = null
+        points = 0
     ) {
-        let id = uuidv4();
-
-        while (await this.get(id)) {
-            id = uuidv4();
-        }
+        let id = await APP.get('buids').new();
 
         return new User(id, name, scope, tz, bday, country, points);
     }
@@ -210,6 +203,37 @@ class UserManager {
         }
     }
 
+    // Retrieves all users
+    async all() {
+        let datapack = new DataPack(".", "testDB.db", "users");
+
+        let results = await APP.get('store').all(datapack);
+
+        if (results) {
+            let resultUsers = new Array();
+            for (let index in results) {
+                let res = results[index];
+                let resultUser = new User(res.id, res.name, null, res.tz, res.bday, res.country, res.points);
+                // Set scope using '_scope' to bypass type checking in 'scope's setter function.
+                resultUser._scope = res.scope;
+                resultUsers.push(resultUser);
+            }
+
+            // Return an array of all found users
+            return resultUsers;
+        } else {
+            return false;
+        }
+    }
+
+    // Deletes all user entries
+    async clear() {
+        let datapack = new DataPack(".", "testDB.db", "users");
+    
+        await APP.get('store').clear(datapack);
+        return true;
+    }
+
     // Delete all users that are part of the given scope (specified by ID)
     async deleteScope(scopeid) {
         let qUser = new User();
@@ -234,7 +258,7 @@ class UserManager {
     }
 
     // Sets up a new container for user storage
-    async init() {
+    async setup() {
         let datapack = new DataPack(".", "testDB.db", "users");
         datapack.addValue("id", "TEXT PRIMARY KEY");
         datapack.addValue("name", "TEXT");
@@ -244,7 +268,15 @@ class UserManager {
         datapack.addValue("country", "TEXT");
         datapack.addValue("points", "INTEGER");
         await APP.get('store').newContainer(datapack);
-        await this.add(BOTUSER);
+        if (!(await this.get(BOTUSER.id))) await this.add(BOTUSER);
+        return true;
+    }
+
+    // Removes/deletes the users container
+    async raze() {
+        let datapack = new DataPack(".", "testDB.db", "users");
+
+        await APP.get('store').deleteContainer(datapack);
         return true;
     }
 }

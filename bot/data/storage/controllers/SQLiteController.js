@@ -5,7 +5,6 @@ const path = require('node:path');
 
 class SQLiteController {
     constructor() {
-        APP.add('store', this);
     }
 
     async add(datapack) {
@@ -130,9 +129,6 @@ class SQLiteController {
             driver: sqlite3.Database
         });
 
-        console.log(datapack.values);
-        console.log(datapack.queries);
-
         let values = new Array();
 
         let valuesArray = Object.entries(datapack.values);
@@ -166,15 +162,15 @@ class SQLiteController {
 
         let sqlString = `UPDATE ${datapack.container} SET ${valuesString} WHERE ${queriesString}`;
 
-        let updatedUsers = await this.find(datapack);
+        let updatedEntries = await this.find(datapack);
 
         await db.run(sqlString, values);
 
         await db.close()
 
-        if (updatedUsers.length > 0) {
-            return updatedUsers.map(user => {
-                return user.id;
+        if (updatedEntries.length > 0) {
+            return updatedEntries.map(entry => {
+                return entry[datapack.key];
             });
         } else {
             return false;
@@ -229,22 +225,54 @@ class SQLiteController {
 
         let sqlString = `DELETE FROM ${datapack.container} WHERE ${queriesString}`;
 
-        let deletedUsers = await this.find(datapack);
+        let deletedEntries = await this.find(datapack);
 
         await db.run(sqlString, values);
 
         await db.close();
 
-        if (deletedUsers.length > 0) {
-            return deletedUsers.map(user => {
-                return user.id;
+        if (deletedEntries.length > 0) {
+            return deletedEntries.map(entry => {
+                return entry[datapack.key];
             });
         } else {
             return false;
         }
     }
 
-    async newStore(datapack) { }
+    async all(datapack) {
+        const db = await open({
+            filename: path.join(datapack.location, datapack.store),
+            driver: sqlite3.Database
+        });
+
+        let sqlString = `SELECT * FROM ${datapack.container}`;
+
+        let results = await db.all(sqlString);
+
+        await db.close();
+
+        if (results.length > 0) {
+            return results;
+        } else {
+            return false;
+        }
+    }
+
+    async clear(datapack) {
+        const db = await open({
+            filename: path.join(datapack.location, datapack.store),
+            driver: sqlite3.Database
+        });
+
+        let sqlString = `DELETE FROM ${datapack.container}`;
+
+        await db.run(swlString);
+
+        await db.close();
+
+        return true;
+    }
 
     async newContainer(datapack) {
         const db = await open({
@@ -255,6 +283,21 @@ class SQLiteController {
         let newFields = Object.entries(datapack.values).map(property => `${property[0]} ${property[1]}`).join(', ');
 
         let sqlString = `CREATE TABLE IF NOT EXISTS ${datapack.container} (${newFields})`;
+
+        await db.run(sqlString);
+
+        await db.close();
+
+        return true;
+    }
+
+    async deleteContainer(datapack) {
+        const db = await open({
+            filename: path.join(datapack.location, datapack.store),
+            driver: sqlite3.Database
+        });
+
+        let sqlString = `DROP TABLE ${datapack.container}`;
 
         await db.run(sqlString);
 

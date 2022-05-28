@@ -1,12 +1,9 @@
 const { APP } = require('./GlobalManager');
-const { v4: uuidv4 } = require('uuid');
 const { Place, GLOBAL } = require("../models/Place");
 const { DataPack } = require('../storage/DataPack');
 
 class PlaceManager {
     constructor() {
-        APP.add('places', this);
-
         APP.get('events').on('placedelete', (scopeid) => {
             this.deleteScope(scopeid);
         })
@@ -19,11 +16,7 @@ class PlaceManager {
         tz = null,
         trigger = null
     ) {
-        let id = uuidv4();
-
-        while (await this.get(id)) {
-            id = uuidv4();
-        }
+        let id = await APP.get('buids').new();
 
         return new Place(id, name, scope, tz, trigger);
     }
@@ -215,6 +208,48 @@ class PlaceManager {
         }
     }
 
+    // Retrieves all places
+    async all() {
+        let datapack = new DataPack(".", "testDB.db", "places");
+        datapack.key = 'id';
+        
+        // Submit query to storage manager
+        let results = await APP.get('store').all(datapack);
+
+        // Repackage results back into Place objects and store them in an array
+        if (results) {
+            let resultPlaces = new Array();
+            for (let index in results) {
+                let res = results[index];
+                let resultPlace = new Place(res.id, res.name, null, res.tz, res.trigger);
+                // Set scope using '_scope' to bypass type checking in 'scope's setter function
+                resultPlace._scope = res.scope;
+                // Parse children from comma separated string and add each to the place
+                if (res.children.length > 0) {
+                    const children = res.children.split(',');
+                    for (let childIndex in children) {
+                        resultPlace.children.add(children[childIndex]);
+                    }
+                }
+
+                resultPlaces.push(resultPlace);
+            }
+
+            // Return an array of all found places
+            return resultPlaces;
+        } else {
+            return false;
+        }
+    }
+
+    // Deletes all place entries
+    async clear() {
+        let datapack = new DataPack(".", "testDB.db", "places");
+    
+        await APP.get('store').clear(datapack);
+        return true;
+    }
+
     // Delete all places that are part of the given scope (specified by ID)
     async deleteScope(scopeid) {
         let qPlace = new Place();
@@ -248,18 +283,18 @@ class PlaceManager {
     }
 
     // Look up the effective trigger for a given place specified by ID, and where its value has been inherited from
-    async triggerof(placeid) {
-        var provider = await this.get(placeid);
+    async triggerof(place) {
+        var provider = place;
 
         while (!(provider.trigger)) {
             provider = await this.get(provider.scope);
         }
 
-        return { provider: provider, trigger: provider.trigger };
+        return { provider: provider.id, value: provider.trigger };
     }
 
     // Sets up a new container for place storage
-    async init() {
+    async setup() {
         let datapack = new DataPack(".", "testDB.db", "places");
         datapack.addValue("id", "TEXT PRIMARY KEY");
         datapack.addValue("name", "TEXT");
@@ -268,7 +303,15 @@ class PlaceManager {
         datapack.addValue("trigger", "TEXT");
         datapack.addValue("children", "TEXT");
         await APP.get('store').newContainer(datapack);
-        await this.add(GLOBAL);
+        if (!(await this.get(GLOBAL.id))) await this.add(GLOBAL);
+        return true;
+    }
+
+    // Removes/deletes the places container
+    async raze() {
+        let datapack = new Datapack(".", "testDB.db", "places");
+
+        await APP.get('store').deleteContainer(datapack);
         return true;
     }
 }

@@ -2,7 +2,6 @@ const { APP } = require('../../managers/GlobalManager');
 
 class MemoryController {
     constructor() {
-        APP.add('store', this);
         this.data = new Map();
     }
 
@@ -22,7 +21,7 @@ class MemoryController {
     }
 
     async find(datapack) {
-        let results = new Array();
+        let results = new Array(yy);
 
         for (var [key, value] of this.data.get(datapack.container)) {
             let valid = true;
@@ -149,10 +148,28 @@ class MemoryController {
         }
     }
 
-    async newStore(datapack) { }
+    async all(datapack) {
+        let results = [...this.data.get(datapack.container).values()];
+
+        if (results.length > 0) {
+            return results;
+        } else {
+            return false;
+        }
+    }
+
+    async clear(datapack) {
+        this.data.get(datapack.container).clear();
+        return true;
+    }
 
     async newContainer(datapack) {
         this.data.set(datapack.container, new Map());
+        return true;
+    }
+
+    async deleteContainer(datapack) {
+        this.data.delete(datapack.container);
         return true;
     }
 }
