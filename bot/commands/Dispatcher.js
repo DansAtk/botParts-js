@@ -4,8 +4,6 @@ class Dispatcher {
     constructor() {
     }
 
-    init() {}
-
     async parse(message) {
         message.content = message.content.trim();
         let trigger = await APP.get('places').triggerof(message.source);
