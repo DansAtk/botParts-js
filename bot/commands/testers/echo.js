@@ -10,6 +10,7 @@ class TesterEcho extends Command {
             "Repeats the user's message.",
             "Follow the command with the message you would like repeated.",
             async (message) => {
+                message.content = `Processed: ${message.content}\nRaw: ${message.raw}\nCommands: ${message.commands.join(' ')}`;
                 APP.get('events').emit('outmessage', message);
             }
         );

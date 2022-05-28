@@ -13,7 +13,11 @@ class Message {
         source = null,
         destination = null,
         recipient = null,
-        time = null
+        time = null,
+        raw = null,
+        commands = new Array(),
+        trigger = null,
+        id = null
     ) {
         this.author = author;
         this.source = source;
@@ -21,6 +25,10 @@ class Message {
         this.destination = destination;
         this.recipient = recipient;
         this.time = time;
+        this.raw = raw;
+        this.commands = commands;
+        this.trigger = trigger;
+        this.id = id;
     }
 
     set author(user) {
@@ -93,6 +101,45 @@ class Message {
 
     get time() {
         return this._time;
+    }
+
+    // For storing the original raw content of the message, before processing or parsing it and before running any jobs
+    set raw(rawString) {
+        if (typeof rawString == 'string' || rawString == null) {
+            this._raw = rawString;
+        } else {
+            throw `Raw must be of type 'String' or null`;
+        }
+    }
+
+    get raw() {
+        return this._raw;
+    }
+
+    // For setting or getting the message's trigger, if one was found
+    set trigger(triggerString) {
+        if (typeof triggerString == 'string' || triggerString == null) {
+            this._trigger = triggerString;
+        } else {
+            throw `Trigger must be of type 'String' or null`;
+        }
+    }
+
+    get trigger() {
+        return this._trigger;
+    }
+
+    // For setting or getting the message's ID, if assigned one
+    set id(idString) {
+        if (typeof idString == 'string' || idString == null) {
+            this._id = idString;
+        } else {
+            throw `ID must be of type 'String' or null`;
+        }
+    }
+
+    get id() {
+        return this._id;
     }
 
     toString() {

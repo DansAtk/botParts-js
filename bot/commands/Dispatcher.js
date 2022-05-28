@@ -11,6 +11,7 @@ class Dispatcher {
         let trigger = await APP.get('places').triggerof(message.source);
         if (message.content.startsWith(trigger.value) || message.content.startsWith('BOTUSER')) {
             let start = message.content.startsWith(trigger.value) ? trigger.value : 'BOTUSER';
+            message.trigger = start;
             message.content = message.content.slice(start.length).trim();
 
             var commands = APP.get('commands');
@@ -18,6 +19,7 @@ class Dispatcher {
             var cmd = null;
 
             while (commands.has(param)) {
+                message.commands.push(param);
                 cmd = commands.get(param);
                 commands = cmd.children;
                 message.content = message.content.slice(param.length).trim();
@@ -33,7 +35,6 @@ class Dispatcher {
             }
         }
     }
-
 }
 
 module.exports = { Dispatcher };

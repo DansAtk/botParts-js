@@ -21,10 +21,11 @@ class BasicInputAdapter extends InputAdapter {
         super.init();
         process.stdin.resume();
         process.stdin.setEncoding("ascii");
-        process.stdin.on("data", (content) => this.processMessage(content));
+        process.stdin.on("data", (content) => this.processMessage(content.trim()));
     }
 
     async processMessage(content) {
+        let newMessage = new Message(this.cliuser, null, this.stdin, this.stdout, null, new Date(), content);
         let words = content.trim().split(' ');
         
         for (var i = 0; i < words.length; i++) {
@@ -53,8 +54,10 @@ class BasicInputAdapter extends InputAdapter {
                 }
             }
         }
+
+        newMessage.content = words.join(' ');
         
-        APP.get('events').emit('inmessage', new Message(this.cliuser, words.join(' '), this.stdin, this.stdout, null, new Date()));
+        APP.get('events').emit('inmessage', newMessage);
     }
 }
 
