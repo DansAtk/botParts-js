@@ -14,12 +14,12 @@ const { ChatTheme } = require('./io/themes/ChatTheme');
 const { SQLiteController } = require('./data/storage/controllers/SQLiteController');
 const { Dispatcher } = require('./commands/Dispatcher');
 const { CommandManager } = require('./commands/CommandManager');
-const { UIDManager } = require('./data/managers/UIDManager');
+const { BUIDManager } = require('./data/managers/BUIDManager');
 
 class BotController {
     constructor() {
         APP.add('store', new SQLiteController());
-        APP.add('uids', new UIDManager());
+        APP.add('buids', new BUIDManager());
         APP.add('groups', new GroupManager());
         APP.add('users', new UserManager());
         APP.add('places', new PlaceManager());
@@ -35,10 +35,10 @@ class BotController {
     }
 
     async start() {
-        await APP.get('uids').init();
-        await APP.get('groups').init();
-        await APP.get('users').init();
-        await APP.get('places').init();
+        await APP.get('buids').setup();
+        await APP.get('groups').setup();
+        await APP.get('users').setup();
+        await APP.get('places').setup();
         APP.get('logging').init();
         APP.get('output').init();
         APP.get('input').init();

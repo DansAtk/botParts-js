@@ -24,8 +24,37 @@ class BasicInputAdapter extends InputAdapter {
         process.stdin.on("data", (content) => this.processMessage(content));
     }
 
-    processMessage(content) {
-        APP.get('events').emit('inmessage', new Message(this.cliuser, content.trim(), this.stdin, this.stdout, null, new Date()));
+    async processMessage(content) {
+        let words = content.trim().split(' ');
+        
+        for (var i = 0; i < words.length; i++) {
+            if (words[i].startsWith('@')) {
+                let ref = words[i].slice(1);
+                var refUser = await APP.get('users').get(ref);
+                if (refUser) {
+                    words[i] = refUser.id;
+                } else {
+                    refUser = await APP.get('users').find(new User(null, ref));
+                    if (refUser.length === 1) {
+                        words[i] = refUser[0].id;
+                    }
+                }
+            }
+            if (words[i].startsWith('#')) {
+                let ref = words[i].slice(1);
+                var refPlace = await APP.get('places').get(ref);
+                if (refPlace) {
+                    words[i] = refPlace.id;
+                } else {
+                    refPlace = await APP.get('places').find(new Place(null, ref));
+                    if (refPlace.length === 1) {
+                        words[i] = refPlace[0].id;
+                    }
+                }
+            }
+        }
+        
+        APP.get('events').emit('inmessage', new Message(this.cliuser, words.join(' '), this.stdin, this.stdout, null, new Date()));
     }
 }
 

@@ -9,8 +9,9 @@ class Dispatcher {
     async parse(message) {
         message.content = message.content.trim();
         let trigger = await APP.get('places').triggerof(message.source);
-        if (message.content.startsWith(trigger.value)) {
-            message.content = message.content.slice(trigger.value.length);
+        if (message.content.startsWith(trigger.value) || message.content.startsWith('BOTUSER')) {
+            let start = message.content.startsWith(trigger.value) ? trigger.value : 'BOTUSER';
+            message.content = message.content.slice(start.length).trim();
 
             var commands = APP.get('commands');
             var param = message.content.split(' ')[0].toLowerCase();

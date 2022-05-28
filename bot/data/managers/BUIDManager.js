@@ -197,7 +197,7 @@ class BUIDManager {
 
     // Sets up a new container for user storage
     async setup() {
-        let datapack = new DataPack(".", "testDB.db", "uids");
+        let datapack = new DataPack(".", "testDB.db", "buids");
         datapack.addValue("id", "TEXT PRIMARY KEY");
         datapack.addValue("type", "TEXT");
         await APP.get('store').newContainer(datapack);
@@ -205,7 +205,7 @@ class BUIDManager {
     }
 
     async raze() {
-        let datapack = new DataPack(".", "testDB.db", "uids");
+        let datapack = new DataPack(".", "testDB.db", "buids");
 
         await APP.get('store').deleteContainer(datapack);
         return true;
