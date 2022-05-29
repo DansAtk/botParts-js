@@ -28,6 +28,8 @@ class BUIDManager {
         APP.get('events').on('groupdelete', (deletedGroupID) => {
             this.delete(deletedGroupID);
         });
+
+        this.store = APP.get('datadir');
     }
 
     async new() {
@@ -43,7 +45,7 @@ class BUIDManager {
     // Create a new entry for a buid
     async add(id, type) {
         // Build a datapack from the passed user
-        let datapack = new DataPack("buids");
+        let datapack = new DataPack(this.store, "buids");
         datapack.key = 'id';
         datapack.addValue("id", id);
         datapack.addValue("type", type);
@@ -61,7 +63,7 @@ class BUIDManager {
 
     // Get a single user directly via its ID
     async get(buid) {
-        let datapack = new DataPack("buids");
+        let datapack = new DataPack(this.store, "buids");
         datapack.key = 'id';
         datapack.addQuery('id', buid);
 
@@ -76,7 +78,7 @@ class BUIDManager {
 
     // Find buids that have properties matching the query type
     async find(queryType) {
-        let datapack = new DataPack("buids");
+        let datapack = new DataPack(this.store, "buids");
         datapack.key = 'id';
         datapack.addQuery("type", queryType);
 
@@ -93,7 +95,7 @@ class BUIDManager {
 
     // Overwrite the buid specified by ID with values in updateBUID
     async update(buid, updateBUID) {
-        let datapack = new DataPack("buids");
+        let datapack = new DataPack(this.store, "buids");
         datapack.key = 'id';
         datapack.addQuery("id", buid);
 
@@ -114,7 +116,7 @@ class BUIDManager {
 
     // Update all buids matching query values with values in updateBUID
     async findUpdate(queryBUID, updateBUID) {
-        let datapack = new DataPack("buids");
+        let datapack = new DataPack(this.store, "buids");
         datapack.key = 'id';
         if (queryBUID.id) datapack.addQuery("id", queryBUID.id);
         if (queryBUID.type) datapack.addQuery("type", queryBUID.type);
@@ -138,7 +140,7 @@ class BUIDManager {
 
     // Deletes a single buid
     async delete(buid) {
-        let datapack = new DataPack("buids");
+        let datapack = new DataPack(this.store, "buids");
         datapack.key = 'id';
         datapack.addQuery("id", buid);
 
@@ -155,7 +157,7 @@ class BUIDManager {
 
     // Remove buid(s) from storage matching the provided query values
     async findDelete(queryBUID) {
-        let datapack = new DataPack("buids");
+        let datapack = new DataPack(this.store, "buids");
         datapack.key = 'id';
         if (queryBUID.id) datapack.addQuery("id", queryBUID.id);
         if (queryBUID.type) datapack.addQuery("type", queryBUID.type);
@@ -176,7 +178,7 @@ class BUIDManager {
 
     // Retreives all buids
     async all() {
-        let datapack = new DataPack("buids");
+        let datapack = new DataPack(this.store, "buids");
 
         let results = await APP.get('store').all(datapack);
 
@@ -189,7 +191,7 @@ class BUIDManager {
 
     // Clears all BUIDs
     async clear() {
-        let datapack = new DataPack("buids");
+        let datapack = new DataPack(this.store, "buids");
 
         await APP.get('store').clear(datapack);
         return true;
@@ -197,15 +199,16 @@ class BUIDManager {
 
     // Sets up a new container for user storage
     async setup() {
-        let datapack = new DataPack("buids");
+        let datapack = new DataPack(this.store, "buids");
         datapack.addValue("id", "TEXT PRIMARY KEY");
         datapack.addValue("type", "TEXT");
+        await APP.get('store').newStore(datapack);
         await APP.get('store').newContainer(datapack);
         return true;
     }
 
     async raze() {
-        let datapack = new DataPack("buids");
+        let datapack = new DataPack(this.store, "buids");
 
         await APP.get('store').deleteContainer(datapack);
         return true;

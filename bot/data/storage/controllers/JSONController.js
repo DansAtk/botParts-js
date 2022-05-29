@@ -4,11 +4,7 @@ const fs = require('fs');
 
 class JSONController {
     constructor() {
-        this.root = APP.get('datapath');
-    }
-
-    async setup() {
-        await this.newStore();
+        this.root = APP.get('projectroot');
     }
 
     async exists(testPath) {
@@ -22,7 +18,7 @@ class JSONController {
 
     async add(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, file);
+        let container = path.join(this.root, datapack.store, file);
 
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
         filecontents[datapack.values[datapack.key]] = datapack.values;
@@ -33,7 +29,7 @@ class JSONController {
     // Get a single entry directly using its key
     async get(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, file);
+        let container = path.join(this.root, datapack.store, file);
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
 
         if (datapack.queries[datapack.key] in filecontents) {
@@ -46,7 +42,7 @@ class JSONController {
     // Get all entries that match the provided query values
     async find(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, file);
+        let container = path.join(this.root, datapack.store, file);
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
 
         let results = new Array();
@@ -83,7 +79,7 @@ class JSONController {
 
     async update(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, file);
+        let container = path.join(this.root, datapack.store, file);
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
 
         let thisObj = filecontents[datapack.queries[datapack.key]];
@@ -102,7 +98,7 @@ class JSONController {
         let updates = new Array();
 
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, file);
+        let container = path.join(this.root, datapack.store, file);
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
 
         for (let entry of Object.values(filecontents)) {
@@ -144,7 +140,7 @@ class JSONController {
 
     async delete(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, file);
+        let container = path.join(this.root, datapack.store, file);
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
 
         if (datapack.queries[datapack.key] in filecontents) {
@@ -160,7 +156,7 @@ class JSONController {
         let deletes = new Array();
 
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, file);
+        let container = path.join(this.root, datapack.store, file);
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
 
         for (let entry of Object.values(filecontents)) {
@@ -197,7 +193,7 @@ class JSONController {
 
     async all(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, file);
+        let container = path.join(this.root, datapack.store, file);
 
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
 
@@ -212,23 +208,25 @@ class JSONController {
 
     async clear(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, file);
+        let container = path.join(this.root, datapack.store, file);
         fs.writeFileSync(container, JSON.stringify({}, null, 2));
         return true;
     }
 
-    async newStore() {
-        if (!await this.exists(this.root)) {
-            fs.mkdirSync(this.root);
+    async newStore(datapack) {
+        let folder = path.join(this.root, datapack.store);
+        if (!await this.exists(folder)) {
+            fs.mkdirSync(folder);
             return true;
         } else {
             return false;
         }
     }
 
-    async deleteStore() {
-        if (await this.exists(this.root)) {
-            fs.rmSync(this.root, { recursive: true, force: true });
+    async deleteStore(datapack) {
+        let folder = path.join(this.root, datapack.store);
+        if (await this.exists(folder)) {
+            fs.rmSync(folder, { recursive: true, force: true });
             return true;
         } else {
             return false;
@@ -237,7 +235,7 @@ class JSONController {
 
     async newContainer(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, file);
+        let container = path.join(this.root, datapack.store, file);
         if (!await this.exists(container)) {
             fs.writeFileSync(container, JSON.stringify({}, null, 2));
             return true;
@@ -248,7 +246,7 @@ class JSONController {
 
     async deleteContainer(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, file);
+        let container = path.join(this.root, datapack.store, file);
         if (await this.exists(container)) {
             fs.unlinkSync(container);
             return true;

@@ -6,12 +6,8 @@ const fs = require('fs');
 
 class SQLiteController {
     constructor() {
-        this.root = APP.get('datapath');
-        this.store = 'testDB.db';
-    }
-
-    async setup() {
-        await this.newStore();
+        this.root = APP.get('projectroot');
+        this.file = 'testDB.db';
     }
 
     async exists(testPath) {
@@ -25,7 +21,7 @@ class SQLiteController {
 
     async add(datapack) {
         const db = await open({
-            filename: path.join(this.root, this.store),
+            filename: path.join(this.root, datapack.store, this.file),
             driver: sqlite3.Database
         });
 
@@ -51,7 +47,7 @@ class SQLiteController {
     // Get a single entry directly using its key
     async get(datapack) {
         const db = await open({
-            filename: path.join(this.root, this.store),
+            filename: path.join(this.root, datapack.store, this.file),
             driver: sqlite3.Database
         });
 
@@ -68,7 +64,7 @@ class SQLiteController {
     // Get all entries that match the provided query values
     async find(datapack) {
         const db = await open({
-            filename: path.join(this.root, this.store),
+            filename: path.join(this.root, datapack.store, this.file),
             driver: sqlite3.Database
         });
 
@@ -106,7 +102,7 @@ class SQLiteController {
 
     async update(datapack) {
         const db = await open({
-            filename: path.join(this.root, this.store),
+            filename: path.join(this.root, datapack.store, this.file),
             driver: sqlite3.Database
         });
 
@@ -141,7 +137,7 @@ class SQLiteController {
 
     async findUpdate(datapack) {
         const db = await open({
-            filename: path.join(this.root, this.store),
+            filename: path.join(this.root, datapack.store, this.file),
             driver: sqlite3.Database
         });
 
@@ -195,7 +191,7 @@ class SQLiteController {
 
     async delete(datapack) {
         const db = await open({
-            filename: path.join(this.root, this.store),
+            filename: path.join(this.root, datapack.store, this.file),
             driver: sqlite3.Database
         });
 
@@ -216,7 +212,7 @@ class SQLiteController {
 
     async findDelete(datapack) {
         const db = await open({
-            filename: path.join(this.root, this.store),
+            filename: path.join(this.root, datapack.store, this.file),
             driver: sqlite3.Database
         });
 
@@ -258,7 +254,7 @@ class SQLiteController {
 
     async all(datapack) {
         const db = await open({
-            filename: path.join(this.root, this.store),
+            filename: path.join(this.root, datapack.store, this.file),
             driver: sqlite3.Database
         });
 
@@ -277,7 +273,7 @@ class SQLiteController {
 
     async clear(datapack) {
         const db = await open({
-            filename: path.join(this.root, this.store),
+            filename: path.join(this.root, datapack.store, this.file),
             driver: sqlite3.Database
         });
 
@@ -290,18 +286,20 @@ class SQLiteController {
         return true;
     }
 
-    async newStore() {
-        if (!await this.exists(this.root)) {
-            fs.mkdirSync(this.root);
+    async newStore(datapack) {
+        let folder = path.join(this.root, datapack.store);
+        if (!await this.exists(folder)) {
+            fs.mkdirSync(folder);
             return true;
         } else {
             return false;
         }
     }
 
-    async deleteStore() {
-        if (await this.exists(this.root)) {
-            fs.rmSync(this.root, { recursive: true, force: true });
+    async deleteStore(datapack) {
+        let folder = path.join(this.root, datapack.store);
+        if (await this.exists(folder)) {
+            fs.rmSync(folder, { recursive: true, force: true });
             return true;
         } else {
             return false;
@@ -310,7 +308,7 @@ class SQLiteController {
 
     async newContainer(datapack) {
         const db = await open({
-            filename: path.join(this.root, this.store),
+            filename: path.join(this.root, datapack.store, this.file),
             driver: sqlite3.Database
         });
 
@@ -327,7 +325,7 @@ class SQLiteController {
 
     async deleteContainer(datapack) {
         const db = await open({
-            filename: path.join(this.root, this.store),
+            filename: path.join(this.root, datapack.store, this.file),
             driver: sqlite3.Database
         });
 
