@@ -16,7 +16,7 @@ class DataPack {
     }
 
     set location(locationString) {
-        if (typeof locationString == 'String' || locationString == null) {
+        if (typeof locationString == 'string' || locationString == null) {
             this._location = locationString;
         } else {
             throw `Location must be of type 'String' or null`;
@@ -28,7 +28,7 @@ class DataPack {
     }
 
     set store(storeString) {
-        if (typeof storeString == 'String' || storeString == null) {
+        if (typeof storeString == 'string' || storeString == null) {
             this._store = storeString;
         } else {
             throw `Store must be of type 'String' or null`;
@@ -40,7 +40,7 @@ class DataPack {
     }
 
     set containter(containerString) {
-        if (typeof containerString == 'String' || containerString == null) {
+        if (typeof containerString == 'string' || containerString == null) {
             this._container = containerString;
         } else {
             throw `Container must be of type 'String' or null`;

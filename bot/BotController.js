@@ -12,13 +12,18 @@ const { BasicOutputAdapter } = require('./io/adapters/Basic/BasicOutputAdapter')
 const { BasicInputAdapter } = require('./io/adapters/Basic/BasicInputAdapter');
 const { ChatTheme } = require('./io/themes/ChatTheme');
 const { SQLiteController } = require('./data/storage/controllers/SQLiteController');
+const { JSONController } = require('./data/storage/controllers/JSONController');
 const { Dispatcher } = require('./commands/Dispatcher');
 const { CommandManager } = require('./commands/CommandManager');
 const { BUIDManager } = require('./data/managers/BUIDManager');
+const path = require('node:path');
+
 
 class BotController {
     constructor() {
-        APP.add('store', new SQLiteController());
+        //APP.add('store', new SQLiteController());
+        APP.add('projectroot', path.join(__dirname, '..'))
+        APP.add('store', new JSONController());
         APP.add('buids', new BUIDManager());
         APP.add('groups', new GroupManager());
         APP.add('users', new UserManager());
