@@ -25,9 +25,8 @@ class BotController {
         APP.add('projectroot', path.join(__dirname, '..'))
         APP.add('configdir', 'config');
         APP.add('datadir', 'data');
+        APP.add('cfg', new ConfigManager());
         APP.add('data', new SQLiteController());
-        APP.add('config', new JSONController());
-        APP.add('cfgmgr', new ConfigManager());
         APP.add('buids', new BUIDManager());
         APP.add('groups', new GroupManager());
         APP.add('users', new UserManager());
@@ -44,14 +43,9 @@ class BotController {
     }
 
     async start() {
-        await APP.get('cfgmgr').setup();
-        await APP.get('cfgmgr').add('configstore', {'directory': 'config', 'controller': 'JSON'});
-        await APP.get('cfgmgr').add('datastore', {'directory': 'data', 'controller': 'SQLite'});
-        //await APP.get('cfgmgr').findUpdate('datastore', 'controller', 'SQLite');
-        //console.log(await APP.get('cfgmgr').all('datastore'));
-        //console.log(await APP.get('cfgmgr').get('datastore', 'controller'));
-        //console.log(await APP.get('cfgmgr').update('configstore', {'directory': 'config', 'controller': 'JSON'}));
-        //await APP.get('cfgmgr').raze();
+        await APP.get('cfg').setup();
+        await APP.get('cfg').add('configstore', {'directory': 'config', 'controller': 'JSON'});
+        await APP.get('cfg').add('datastore', {'directory': 'data', 'controller': 'SQLite'});
         await APP.get('buids').setup();
         await APP.get('groups').setup();
         await APP.get('users').setup();
