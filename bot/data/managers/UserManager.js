@@ -10,6 +10,7 @@ class UserManager {
         })
 
         this.store = APP.get('datadir');
+        this.storeController = APP.get('data');
     }
 
     // Generate a new User object with a unique ID
@@ -29,8 +30,7 @@ class UserManager {
     // Create a new entry for a user
     async add(newUser) {
         // Build a datapack from the passed user
-        let datapack = new DataPack(this.store, "users");
-        datapack.key = 'id';
+        let datapack = new DataPack(this.store, 'users', 'id');
         datapack.addValue("id", newUser.id);
         datapack.addValue("name", newUser.name);
         datapack.addValue("scope", newUser.scope);
@@ -40,7 +40,7 @@ class UserManager {
         datapack.addValue("points", newUser.points);
 
         // Submit request for storage of the datapack to the storage manager
-        let newUserID = await APP.get('store').add(datapack);
+        let newUserID = await this.storeController.add(datapack);
 
         if (newUserID) {
             APP.get('events').emit('useradd', newUserID);
@@ -52,11 +52,10 @@ class UserManager {
 
     // Get a single user directly via its ID
     async get(userid) {
-        let datapack = new DataPack(this.store, "users");
-        datapack.key = 'id';
+        let datapack = new DataPack(this.store, 'users', 'id');
         datapack.addQuery('id', userid);
 
-        let result = await APP.get('store').get(datapack);
+        let result = await this.storeController.get(datapack);
 
         if (result) {
             let resultUser = new User(result.id, result.name, null, result.tz, result.bday, result.country, result.points);
@@ -81,7 +80,7 @@ class UserManager {
         if (queryUser.points != null) datapack.addQuery("points", queryUser.points);
 
         // Submit query to storage manager
-        let results = await APP.get('store').find(datapack);
+        let results = await this.storeController.find(datapack);
 
         // Repackage results back into User objects and store them in an array
         if (results) {
@@ -116,7 +115,7 @@ class UserManager {
         datapack.addValue("points", updateUser.points);
 
         // Submit update request to storage manager
-        let updatedUserID = await APP.get('store').update(datapack);
+        let updatedUserID = await this.storeController.update(datapack);
 
         if (updatedUserID) {
             APP.get('events').emit('userupdate', updatedUserID);
@@ -148,7 +147,7 @@ class UserManager {
         if (updateUser.points != null) datapack.addValue("points", updateUser.points);
 
         // Submit update request to storage manager
-        let updatedUserIDs = await APP.get('store').findUpdate(datapack);
+        let updatedUserIDs = await this.storeController.findUpdate(datapack);
 
         if (updatedUserIDs) {
             for (let userid of updatedUserIDs) {
@@ -167,7 +166,7 @@ class UserManager {
         datapack.key = 'id';
         datapack.addQuery("id", userid);
 
-        let deletedUserID = await APP.get('store').delete(datapack);
+        let deletedUserID = await this.storeController.delete(datapack);
 
         if (deletedUserID) {
             APP.get('events').emit('userdelete', deletedUserID);
@@ -192,7 +191,7 @@ class UserManager {
         if (queryUser.points != null) datapack.addQuery("points", queryUser.points);
 
         // Submit removal request to storage manager
-        let deletedUserIDs = await APP.get('store').findDelete(datapack);
+        let deletedUserIDs = await this.storeController.findDelete(datapack);
 
         if (deletedUserIDs) {
             for (let userid of deletedUserIDs) {
@@ -209,7 +208,7 @@ class UserManager {
     async all() {
         let datapack = new DataPack(this.store, "users");
 
-        let results = await APP.get('store').all(datapack);
+        let results = await this.storeController.all(datapack);
 
         if (results) {
             let resultUsers = new Array();
@@ -232,7 +231,7 @@ class UserManager {
     async clear() {
         let datapack = new DataPack(this.store, "users");
 
-        await APP.get('store').clear(datapack);
+        await this.storeController.clear(datapack);
         return true;
     }
 
@@ -269,8 +268,8 @@ class UserManager {
         datapack.addValue("bday", "TEXT");
         datapack.addValue("country", "TEXT");
         datapack.addValue("points", "INTEGER");
-        await APP.get('store').newStore(datapack);
-        await APP.get('store').newContainer(datapack);
+        await this.storeController.newStore(datapack);
+        await this.storeController.newContainer(datapack);
         if (!(await this.get(BOTUSER.id))) await this.add(BOTUSER);
         return true;
     }
@@ -279,7 +278,7 @@ class UserManager {
     async raze() {
         let datapack = new DataPack(this.store, "users");
 
-        await APP.get('store').deleteContainer(datapack);
+        await this.storeController.deleteContainer(datapack);
         return true;
     }
 }

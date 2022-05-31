@@ -15,6 +15,7 @@ class GroupManager {
         })
 
         this.store = APP.get('datadir');
+        this.storeController = APP.get('data');
     }
 
     // Generate a new Group object with a unique ID
@@ -39,7 +40,7 @@ class GroupManager {
         datapack.addValue("users", [...updateGroup.users].join(','));
         datapack.addValue("places", [...updateGroup.places].join(','));
 
-        let newGroupID = await APP.get('store').add(datapack);
+        let newGroupID = await this.storeController.add(datapack);
 
         if (newGroupID) {
             APP.get('events').emit('groupadd', newGroupID);
@@ -55,7 +56,7 @@ class GroupManager {
         datapack.key = 'id';
         datapack.addQuery('id', groupid)
 
-        let result = await APP.get('store').get(datapack);
+        let result = await this.storeController.get(datapack);
 
         if (result) {
             let resultGroup = new Group(result.id, result.name, null, result.tz);
@@ -92,7 +93,7 @@ class GroupManager {
         if (queryGroup.users.size > 0) datapack.addQuery("users", [...queryGroup.users].join(','));
         if (queryGroup.places.size > 0) datapack.addQuery("places", [...queryGroup.places].join(','));
 
-        let results = await APP.get('store').find(datapack);
+        let results = await this.storeController.find(datapack);
 
         if (results) {
             let resultGroups = new Array();
@@ -139,7 +140,7 @@ class GroupManager {
         datapack.addValue("users", [...updateGroup.users].join(','));
         datapack.addValue("places", [...updateGroup.places].join(','));
 
-        let updatedGroupID = await APP.get('store').update(datapack);
+        let updatedGroupID = await this.storeController.update(datapack);
 
         if (updatedGroupID) {
             APP.get('events').emit('groupupdate', updatedGroupID);
@@ -167,7 +168,7 @@ class GroupManager {
         if (updateGroup.users.size > 0) datapack.addValue("users", [...updateGroup.users].join(','));
         if (updateGroup.places.size > 0) datapack.addValue("places", [...updateGroup.places].join(','));
 
-        let updatedGroupIDs = await APP.get('store').findUpdate(datapack);
+        let updatedGroupIDs = await this.storeController.findUpdate(datapack);
 
         if (updatedGroupIDs) {
             for (let groupid of updatedGroupIDs) {
@@ -186,7 +187,7 @@ class GroupManager {
         datapack.key = 'id';
         datapack.addQuery("id", groupid);
 
-        let deletedGroupID = await APP.get('store').delete(datapack);
+        let deletedGroupID = await this.storeController.delete(datapack);
 
         if (deletedGroupID) {
             APP.get('events').emit('groupdelete', deletedGroupID);
@@ -208,7 +209,7 @@ class GroupManager {
         if (queryGroup.users.size > 0) datapack.addQuery("users", [...queryGroup.users].join(','));
         if (queryGroup.places.size > 0) datapack.addQuery("places", [...queryGroup.places].join(','));
 
-        let deletedGroupIDs = await APP.get('store').findDelete(datapack);
+        let deletedGroupIDs = await this.storeController.findDelete(datapack);
 
         if (deletedGroupIDs) {
             for (let groupid of deletedGroupIDs) {
@@ -225,7 +226,7 @@ class GroupManager {
     async all() {
         let datapack = new DataPack(this.store, "groups");
 
-        let results = await APP.get('store').all(datapack);
+        let results = await this.storeController.all(datapack);
 
         if (results) {
             let resultGroups = new Array();
@@ -263,7 +264,7 @@ class GroupManager {
     async clear() {
         let datapack = new Datapack(this.store, "groups");
 
-        await APP.get('store').clear(datapack);
+        await this.storeController.clear(datapack);
         return true;
     }
 
@@ -339,8 +340,8 @@ class GroupManager {
         datapack.addValue("tz", "TEXT");
         datapack.addValue("users", "TEXT");
         datapack.addValue("places", "TEXT");
-        await APP.get('store').newStore(datapack);
-        await APP.get('store').newContainer(datapack);
+        await this.storeController.newStore(datapack);
+        await this.storeController.newContainer(datapack);
         return true;
     }
 
@@ -348,7 +349,7 @@ class GroupManager {
     async raze() {
         let datapack = new DataPack(this.store, "groups");
 
-        await APP.get('store').deleteContainer(datapack);
+        await this.storeController.deleteContainer(datapack);
         return true;
     }
 }

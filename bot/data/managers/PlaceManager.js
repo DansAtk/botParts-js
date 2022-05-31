@@ -9,6 +9,7 @@ class PlaceManager {
         })
         
         this.store = APP.get('datadir');
+        this.storeController = APP.get('data');
     }
 
     // Generate a new Place object with a unique ID
@@ -36,7 +37,7 @@ class PlaceManager {
         datapack.addValue("children", [...newPlace.children].join(','));
 
         // Submit request for storage of the datapack to the storage manager
-        let newPlaceID = await APP.get('store').add(datapack);
+        let newPlaceID = await this.storeController.add(datapack);
 
         if (newPlaceID) {
             APP.get('events').emit('placeadd', newPlaceID);
@@ -52,7 +53,7 @@ class PlaceManager {
         datapack.key = 'id';
         datapack.addQuery('id', placeid);
 
-        let result = await APP.get('store').get(datapack);
+        let result = await this.storeController.get(datapack);
 
         if (result) {
             let resultPlace = new Place(result.id, result.name, null, result.tz, result.trigger);
@@ -84,7 +85,7 @@ class PlaceManager {
         if (queryPlace.children.size > 0) datapack.addQuery("children", [...queryPlace.children].join(','));
 
         // Submit query to storage manager
-        let results = await APP.get('store').find(datapack);
+        let results = await this.storeController.find(datapack);
 
         // Repackage results back into Place objects and store them in an array
         if (results) {
@@ -125,7 +126,7 @@ class PlaceManager {
         datapack.addValue("trigger", updatePlace.trigger);
         if (updatePlace.children.size > 0) datapack.addValue("children", [...updatePlace.children].join(','));
 
-        let updatedPlaceID = await APP.get('store').update(datapack);
+        let updatedPlaceID = await this.storeController.update(datapack);
 
         if (updatedPlaceID) {
             APP.get('events').emit('placeupdate', updatedPlaceID);
@@ -154,7 +155,7 @@ class PlaceManager {
         if (updatePlace.children.size > 0) datapack.addValue("children", [...updatePlace.children].join(','));
 
         // Submit update request to storage manager
-        let updatedPlaceIDs = await APP.get('store').findUpdate(datapack);
+        let updatedPlaceIDs = await this.storeController.findUpdate(datapack);
 
         if (updatedPlaceIDs) {
             for (let placeid of updatedPlaceIDs) {
@@ -173,7 +174,7 @@ class PlaceManager {
         datapack.key = 'id';
         datapack.addQuery("id", placeid);
 
-        let deletedPlaceID = await APP.get('store').delete(datapack);
+        let deletedPlaceID = await this.storeController.delete(datapack);
 
         if (deletedPlaceID) {
             APP.get('events').emit('placedelete', deletedPlaceID);
@@ -197,7 +198,7 @@ class PlaceManager {
         if (queryPlace.children.size > 0) datapack.addQuery("children", [...queryPlace.children].join(','));
 
         // Submit removal request to storage manager
-        let deletedPlaceIDs = await APP.get('store').findDelete(datapack);
+        let deletedPlaceIDs = await this.storeController.findDelete(datapack);
 
         if (deletedPlaceIDs) {
             for (let placeid of deletedPlaceIDs) {
@@ -216,7 +217,7 @@ class PlaceManager {
         datapack.key = 'id';
 
         // Submit query to storage manager
-        let results = await APP.get('store').all(datapack);
+        let results = await this.storeController.all(datapack);
 
         // Repackage results back into Place objects and store them in an array
         if (results) {
@@ -248,7 +249,7 @@ class PlaceManager {
     async clear() {
         let datapack = new DataPack(this.store, "places");
 
-        await APP.get('store').clear(datapack);
+        await this.storeController.clear(datapack);
         return true;
     }
 
@@ -304,8 +305,8 @@ class PlaceManager {
         datapack.addValue("tz", "TEXT");
         datapack.addValue("trigger", "TEXT");
         datapack.addValue("children", "TEXT");
-        await APP.get('store').newStore(datapack);
-        await APP.get('store').newContainer(datapack);
+        await this.storeController.newStore(datapack);
+        await this.storeController.newContainer(datapack);
         if (!(await this.get(GLOBAL.id))) await this.add(GLOBAL);
         return true;
     }
@@ -314,7 +315,7 @@ class PlaceManager {
     async raze() {
         let datapack = new Datapack(this.store, "places");
 
-        await APP.get('store').deleteContainer(datapack);
+        await this.storeController.deleteContainer(datapack);
         return true;
     }
 }

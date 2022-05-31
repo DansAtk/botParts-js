@@ -106,3 +106,6 @@ dist
 # Data files
 *.db
 /data
+
+# Config files
+/config

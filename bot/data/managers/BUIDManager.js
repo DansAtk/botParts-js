@@ -30,6 +30,7 @@ class BUIDManager {
         });
 
         this.store = APP.get('datadir');
+        this.storeController = APP.get('data');
     }
 
     async new() {
@@ -51,7 +52,7 @@ class BUIDManager {
         datapack.addValue("type", type);
 
         // Submit request for storage of the datapack to the storage manager
-        let newBUID = await APP.get('store').add(datapack);
+        let newBUID = await this.storeController.add(datapack);
 
         if (newBUID) {
             APP.get('events').emit('buidadd', newBUID);
@@ -67,7 +68,7 @@ class BUIDManager {
         datapack.key = 'id';
         datapack.addQuery('id', buid);
 
-        let result = await APP.get('store').get(datapack);
+        let result = await this.storeController.get(datapack);
 
         if (result) {
             return result;
@@ -83,7 +84,7 @@ class BUIDManager {
         datapack.addQuery("type", queryType);
 
         // Submit query to storage manager
-        let results = await APP.get('store').find(datapack);
+        let results = await this.storeController.find(datapack);
 
         // Return results if any
         if (results) {
@@ -103,7 +104,7 @@ class BUIDManager {
         datapack.addValue("type", updateBUID.type);
 
         // Submit update request to storage manager
-        let updatedBUID = await APP.get('store').update(datapack);
+        let updatedBUID = await this.storeController.update(datapack);
 
         if (updatedBUID) {
             APP.get('events').emit('buidupdate', updatedBUID);
@@ -125,7 +126,7 @@ class BUIDManager {
         if (updateBUID.type) datapack.addValue("type", updateBUID.type);
 
         // Submit update request to storage manager
-        let updatedBUIDs = await APP.get('store').findUpdate(datapack);
+        let updatedBUIDs = await this.storeController.findUpdate(datapack);
 
         if (updatedBUIDs) {
             for (let buid of updatedBUIDs) {
@@ -144,7 +145,7 @@ class BUIDManager {
         datapack.key = 'id';
         datapack.addQuery("id", buid);
 
-        let deletedBUID = await APP.get('store').delete(datapack);
+        let deletedBUID = await this.storeController.delete(datapack);
 
         if (deletedBUID) {
             APP.get('events').emit('buiddelete', deletedBUID);
@@ -163,7 +164,7 @@ class BUIDManager {
         if (queryBUID.type) datapack.addQuery("type", queryBUID.type);
 
         // Submit removal request to storage manager
-        let deletedBUIDs = await APP.get('store').findDelete(datapack);
+        let deletedBUIDs = await this.storeController.findDelete(datapack);
 
         if (deletedBUIDs) {
             for (let buid of deletedBUIDs) {
@@ -180,7 +181,7 @@ class BUIDManager {
     async all() {
         let datapack = new DataPack(this.store, "buids");
 
-        let results = await APP.get('store').all(datapack);
+        let results = await this.storeController.all(datapack);
 
         if (results) {
             return results;
@@ -193,7 +194,7 @@ class BUIDManager {
     async clear() {
         let datapack = new DataPack(this.store, "buids");
 
-        await APP.get('store').clear(datapack);
+        await this.storeController.clear(datapack);
         return true;
     }
 
@@ -202,15 +203,15 @@ class BUIDManager {
         let datapack = new DataPack(this.store, "buids");
         datapack.addValue("id", "TEXT PRIMARY KEY");
         datapack.addValue("type", "TEXT");
-        await APP.get('store').newStore(datapack);
-        await APP.get('store').newContainer(datapack);
+        await this.storeController.newStore(datapack);
+        await this.storeController.newContainer(datapack);
         return true;
     }
 
     async raze() {
         let datapack = new DataPack(this.store, "buids");
 
-        await APP.get('store').deleteContainer(datapack);
+        await this.storeController.deleteContainer(datapack);
         return true;
     }
 }
