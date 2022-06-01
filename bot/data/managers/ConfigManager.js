@@ -1,5 +1,4 @@
 const { APP } = require('./GlobalManager');
-const { DataPack } = require('../storage/DataPack');
 const { ConfigController } = require('../storage/controllers/ConfigController');
 
 class ConfigManager {
@@ -8,16 +7,35 @@ class ConfigManager {
         this.controller = new ConfigController();
     }
 
-    async add() {
-        //TODO
+    add(configname, newConfig) {
+        if (this.config.get(configname) == undefined) {
+            this.config.set(configname, newConfig);
+            return configname;
+        } else {
+            return false;
+        }
     }
 
-    async get() {
-        //TODO
+    addProperty(configname, property, newValue) {
+        let entry = this.config.get(configname);
+        if (entry != undefined) {
+            if (entry[property] == undefined) {
+                entry[property] = newValue;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
-    async getProperty() {
-        //TODO
+    get(configname) {
+        return this.config.get(configname);
+    }
+
+    getProperty(configname, property) {
+        let result = this.config.get(configname);
+        return result != undefined ? result[property] : undefined;
     }
 
     async update() {

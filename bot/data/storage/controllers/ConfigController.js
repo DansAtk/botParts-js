@@ -28,6 +28,20 @@ class ConfigController {
         }
     }
 
+    async addProperty(configname, property, newValue) {
+        let contents = await this.get(configname);
+
+        if (!contents) {
+            contents[property] = newValue;
+
+            fs.writeFileSync(file, JSON.stringify(contents, null, 2));
+
+            return configname;
+        } else {
+            return false;
+        }
+    }
+
     async get(configname) {
         let file = path.join(this.root, this.store, configname.concat('.json'));
 

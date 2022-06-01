@@ -44,8 +44,13 @@ class BotController {
 
     async start() {
         await APP.get('cfg').setup();
-        await APP.get('cfg').add('configstore', {'directory': 'config', 'controller': 'JSON'});
-        await APP.get('cfg').add('datastore', {'directory': 'data', 'controller': 'SQLite'});
+        //await APP.get('cfg').add('configstore', {'directory': 'config', 'controller': 'JSON'});
+        APP.get('cfg').add('datastore', {'directory': 'data', 'controller': 'SQLite'});
+        console.log(APP.get('cfg').get('datastore'));
+        console.log(APP.get('cfg').getProperty('datastore', 'controller'));
+        console.log(APP.get('cfg').getProperty('datastore', 'dogfood'));
+
+        
         await APP.get('buids').setup();
         await APP.get('groups').setup();
         await APP.get('users').setup();
