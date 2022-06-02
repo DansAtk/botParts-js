@@ -344,9 +344,9 @@ class SQLiteController {
         this.root = APP.get('configs').getProperty('global', 'root');
 
         if (!await APP.get('configs').load('sqlite')) {
-            APP.get('configs').add('sqlite', {});
-
             console.log('SQLite config not found!');
+
+            APP.get('configs').add('sqlite', {});
 
             let datadir = readlineSync.question(`Set directory (default: data) `, {
                 defaultInput: 'data'

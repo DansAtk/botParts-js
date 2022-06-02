@@ -163,6 +163,14 @@ class MemoryController {
         return true;
     }
 
+    async newStore(datapack) {
+        return true;
+    }
+
+    async deleteStore(datapack) {
+        return true;
+    }
+
     async newContainer(datapack) {
         this.data.set(datapack.container, new Map());
         return true;
@@ -170,6 +178,10 @@ class MemoryController {
 
     async deleteContainer(datapack) {
         this.data.delete(datapack.container);
+        return true;
+    }
+
+    async setup() {
         return true;
     }
 }

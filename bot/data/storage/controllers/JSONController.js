@@ -1,10 +1,12 @@
 const { APP } = require('../../managers/GlobalManager');
 const path = require('node:path');
 const fs = require('fs');
+const readlineSync = require('readline-sync');
 
 class JSONController {
     constructor() {
-        this.root = APP.get('projectroot');
+        this.root;
+        this.store;
     }
 
     async exists(testPath) {
@@ -18,7 +20,7 @@ class JSONController {
 
     async add(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, datapack.store, file);
+        let container = path.join(this.root, this.store, file);
 
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
         filecontents[datapack.values[datapack.key]] = datapack.values;
@@ -29,7 +31,7 @@ class JSONController {
     // Get a single entry directly using its key
     async get(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, datapack.store, file);
+        let container = path.join(this.root, this.store, file);
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
 
         if (datapack.queries[datapack.key] in filecontents) {
@@ -42,7 +44,7 @@ class JSONController {
     // Get all entries that match the provided query values
     async find(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, datapack.store, file);
+        let container = path.join(this.root, this.store, file);
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
 
         let results = new Array();
@@ -79,7 +81,7 @@ class JSONController {
 
     async update(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, datapack.store, file);
+        let container = path.join(this.root, this.store, file);
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
 
         let thisObj = filecontents[datapack.queries[datapack.key]];
@@ -98,7 +100,7 @@ class JSONController {
         let updates = new Array();
 
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, datapack.store, file);
+        let container = path.join(this.root, this.store, file);
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
 
         for (let entry of Object.values(filecontents)) {
@@ -140,7 +142,7 @@ class JSONController {
 
     async delete(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, datapack.store, file);
+        let container = path.join(this.root, this.store, file);
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
 
         if (datapack.queries[datapack.key] in filecontents) {
@@ -156,7 +158,7 @@ class JSONController {
         let deletes = new Array();
 
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, datapack.store, file);
+        let container = path.join(this.root, this.store, file);
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
 
         for (let entry of Object.values(filecontents)) {
@@ -193,7 +195,7 @@ class JSONController {
 
     async all(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, datapack.store, file);
+        let container = path.join(this.root, this.store, file);
 
         let filecontents = JSON.parse(fs.readFileSync(container, 'utf-8'));
 
@@ -208,13 +210,13 @@ class JSONController {
 
     async clear(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, datapack.store, file);
+        let container = path.join(this.root, this.store, file);
         fs.writeFileSync(container, JSON.stringify({}, null, 2));
         return true;
     }
 
     async newStore(datapack) {
-        let folder = path.join(this.root, datapack.store);
+        let folder = path.join(this.root, this.store);
         if (!await this.exists(folder)) {
             fs.mkdirSync(folder);
             return true;
@@ -224,7 +226,7 @@ class JSONController {
     }
 
     async deleteStore(datapack) {
-        let folder = path.join(this.root, datapack.store);
+        let folder = path.join(this.root, this.store);
         if (await this.exists(folder)) {
             fs.rmSync(folder, { recursive: true, force: true });
             return true;
@@ -235,7 +237,7 @@ class JSONController {
 
     async newContainer(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, datapack.store, file);
+        let container = path.join(this.root, this.store, file);
         if (!await this.exists(container)) {
             fs.writeFileSync(container, JSON.stringify({}, null, 2));
             return true;
@@ -246,7 +248,7 @@ class JSONController {
 
     async deleteContainer(datapack) {
         let file = datapack.container.concat('.json');
-        let container = path.join(this.root, datapack.store, file);
+        let container = path.join(this.root, this.store, file);
         if (await this.exists(container)) {
             fs.unlinkSync(container);
             return true;
@@ -254,6 +256,26 @@ class JSONController {
             return false;
         }
     }
+
+    async setup() {
+        this.root = APP.get('configs').getProperty('global', 'root');
+
+        if (!await APP.get('configs').load('json')) {
+            console.log('JSON config not found!')
+
+            APP.get('configs').add('json', {});
+
+            let datadir = readlineSync.question(`Set directory (default: data) `, {
+                defaultInput: 'data'
+            });
+            APP.get('configs').updateProperty('json', 'directory', datadir);
+            console.log('');
+        }
+
+        this.store = APP.get('configs').getProperty('json', 'directory');
+        await APP.get('configs').save('json');
+    }
+
 }
 
 module.exports = { JSONController };

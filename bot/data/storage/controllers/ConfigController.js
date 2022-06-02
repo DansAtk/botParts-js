@@ -18,7 +18,7 @@ class ConfigController {
     }
 
     async add(configname, newConfig) {
-        let file = path.join(this.root, this.store, configname.concat('.json'));
+        let file = path.join(this.root, this.store, configname.concat('.cfg'));
 
         if (!await this.exists(file)) {
             fs.writeFileSync(file, JSON.stringify(newConfig, null, 2));
@@ -43,7 +43,7 @@ class ConfigController {
     }
 
     async get(configname) {
-        let file = path.join(this.root, this.store, configname.concat('.json'));
+        let file = path.join(this.root, this.store, configname.concat('.cfg'));
 
         if (await this.exists(file)) {
             let contents = JSON.parse(fs.readFileSync(file, 'utf-8'));
@@ -73,7 +73,7 @@ class ConfigController {
     }
 
     async update(configname, updateConfig) {
-        let file = path.join(this.root, this.store, configname.concat('.json'));
+        let file = path.join(this.root, this.store, configname.concat('.cfg'));
 
         try {
             fs.writeFileSync(file, JSON.stringify(updateConfig, null, 2));
@@ -98,7 +98,7 @@ class ConfigController {
     }
 
     async delete(configname) {
-        let file = path.join(this.root, this.store, configname.concat('.json'));
+        let file = path.join(this.root, this.store, configname.concat('.cfg'));
 
         try {
             fs.unlinkSync(file);
