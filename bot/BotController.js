@@ -13,20 +13,20 @@ const { BasicInputAdapter } = require('./io/adapters/Basic/BasicInputAdapter');
 const { ChatTheme } = require('./io/themes/ChatTheme');
 const { SQLiteController } = require('./data/storage/controllers/SQLiteController');
 const { JSONController } = require('./data/storage/controllers/JSONController');
+const { MemoryController } = require('./data/storage/controllers/MemoryController');
 const { Dispatcher } = require('./commands/Dispatcher');
 const { CommandManager } = require('./commands/CommandManager');
 const { BUIDManager } = require('./data/managers/BUIDManager');
-const path = require('node:path');
 const { ConfigManager } = require('./data/managers/ConfigManager');
+const path = require('node:path');
 
 
 class BotController {
     constructor() {
-        APP.add('projectroot', path.join(__dirname, '..'))
-        APP.add('configdir', 'config');
-        APP.add('datadir', 'data');
-        APP.add('cfg', new ConfigManager());
-        APP.add('data', new SQLiteController());
+        APP.add('SQLITE', new SQLiteController());
+        APP.add('JSON', new JSONController());
+        APP.add('MEMORY', new MemoryController());
+        APP.add('configs', new ConfigManager());
         APP.add('buids', new BUIDManager());
         APP.add('groups', new GroupManager());
         APP.add('users', new UserManager());
@@ -43,14 +43,13 @@ class BotController {
     }
 
     async start() {
-        await APP.get('cfg').setup();
-        //await APP.get('cfg').add('configstore', {'directory': 'config', 'controller': 'JSON'});
-        APP.get('cfg').add('datastore', {'directory': 'data', 'controller': 'SQLite'});
-        console.log(APP.get('cfg').get('datastore'));
-        console.log(APP.get('cfg').getProperty('datastore', 'controller'));
-        console.log(APP.get('cfg').getProperty('datastore', 'dogfood'));
-
+        await APP.get('configs').setup();
+        APP.add(
+            'storage',
+            APP.get(APP.get('configs').getProperty('global', 'datacontroller'))
+        );
         
+        await APP.get('storage').setup();
         await APP.get('buids').setup();
         await APP.get('groups').setup();
         await APP.get('users').setup();

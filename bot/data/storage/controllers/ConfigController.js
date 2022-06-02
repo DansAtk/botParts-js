@@ -4,8 +4,8 @@ const fs = require('fs');
 
 class ConfigController {
     constructor() {
-        this.root = APP.get('projectroot');
-        this.store = APP.get('configdir');
+        this.root;
+        this.store;
     }
 
     async exists(testPath) {
@@ -130,6 +130,8 @@ class ConfigController {
     }
 
     async setup() {
+        this.root = APP.get('configs').getProperty('global', 'root');
+        this.store = APP.get('configs').getProperty('global', 'configdir');
         let folder = path.join(this.root, this.store);
         if (!await this.exists(folder)) {
             fs.mkdirSync(folder);

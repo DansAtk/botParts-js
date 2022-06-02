@@ -1,28 +1,14 @@
 class DataPack {
     constructor(
-        store = null,
         container = null,
         key = null,
         queries = null,
         values = null
     ) {
-        this._store = store;
         this._container = container;
         this._key = key;
         this._queries = queries ? queries : {};
         this._values = values ? values : {};
-    }
-
-    set store(storeString) {
-        if (typeof storeString == 'string' || storeString == null) {
-            this._store = storeString;
-        } else {
-            throw `Store must be of type 'String' or null`;
-        }
-    }
-
-    get store() {
-        return this._store;
     }
 
     set container(containerString) {

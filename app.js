@@ -11,7 +11,6 @@ let bot = new BotController();
 bot.start();
 
 // For handling unexpected shutdown via keyboard interrupt
-
 process.on('SIGINT', cleanup);
 
 function cleanup() {
