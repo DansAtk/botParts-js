@@ -28,6 +28,8 @@ class BUIDManager {
         APP.get('events').on('groupdelete', (deletedGroupID) => {
             this.delete(deletedGroupID);
         });
+
+        this.storeController;
     }
 
     async new() {
@@ -43,13 +45,12 @@ class BUIDManager {
     // Create a new entry for a buid
     async add(id, type) {
         // Build a datapack from the passed user
-        let datapack = new DataPack(".", "testDB.db", "buids");
-        datapack.key = 'id';
+        let datapack = new DataPack("buids", "id");
         datapack.addValue("id", id);
         datapack.addValue("type", type);
 
         // Submit request for storage of the datapack to the storage manager
-        let newBUID = await APP.get('store').add(datapack);
+        let newBUID = await this.storeController.add(datapack);
 
         if (newBUID) {
             APP.get('events').emit('buidadd', newBUID);
@@ -61,11 +62,10 @@ class BUIDManager {
 
     // Get a single user directly via its ID
     async get(buid) {
-        let datapack = new DataPack(".", "testDB.db", "buids");
-        datapack.key = 'id';
+        let datapack = new DataPack("buids", "id");
         datapack.addQuery('id', buid);
 
-        let result = await APP.get('store').get(datapack);
+        let result = await this.storeController.get(datapack);
 
         if (result) {
             return result;
@@ -76,12 +76,11 @@ class BUIDManager {
 
     // Find buids that have properties matching the query type
     async find(queryType) {
-        let datapack = new DataPack(".", "testDB.db", "buids");
-        datapack.key = 'id';
+        let datapack = new DataPack("buids", "id");
         datapack.addQuery("type", queryType);
 
         // Submit query to storage manager
-        let results = await APP.get('store').find(datapack);
+        let results = await this.storeController.find(datapack);
 
         // Return results if any
         if (results) {
@@ -93,15 +92,14 @@ class BUIDManager {
 
     // Overwrite the buid specified by ID with values in updateBUID
     async update(buid, updateBUID) {
-        let datapack = new DataPack(".", "testDB.db", "buids");
-        datapack.key = 'id';
+        let datapack = new DataPack("buids", "id");
         datapack.addQuery("id", buid);
 
         datapack.addValue("id", updateBUID.id);
         datapack.addValue("type", updateBUID.type);
 
         // Submit update request to storage manager
-        let updatedBUID = await APP.get('store').update(datapack);
+        let updatedBUID = await this.storeController.update(datapack);
 
         if (updatedBUID) {
             APP.get('events').emit('buidupdate', updatedBUID);
@@ -114,8 +112,7 @@ class BUIDManager {
 
     // Update all buids matching query values with values in updateBUID
     async findUpdate(queryBUID, updateBUID) {
-        let datapack = new DataPack(".", "testDB.db", "buids");
-        datapack.key = 'id';
+        let datapack = new DataPack("buids", "id");
         if (queryBUID.id) datapack.addQuery("id", queryBUID.id);
         if (queryBUID.type) datapack.addQuery("type", queryBUID.type);
 
@@ -123,7 +120,7 @@ class BUIDManager {
         if (updateBUID.type) datapack.addValue("type", updateBUID.type);
 
         // Submit update request to storage manager
-        let updatedBUIDs = await APP.get('store').findUpdate(datapack);
+        let updatedBUIDs = await this.storeController.findUpdate(datapack);
 
         if (updatedBUIDs) {
             for (let buid of updatedBUIDs) {
@@ -138,11 +135,10 @@ class BUIDManager {
 
     // Deletes a single buid
     async delete(buid) {
-        let datapack = new DataPack(".", "testDB.db", "buids");
-        datapack.key = 'id';
+        let datapack = new DataPack("buids", "id");
         datapack.addQuery("id", buid);
 
-        let deletedBUID = await APP.get('store').delete(datapack);
+        let deletedBUID = await this.storeController.delete(datapack);
 
         if (deletedBUID) {
             APP.get('events').emit('buiddelete', deletedBUID);
@@ -155,13 +151,12 @@ class BUIDManager {
 
     // Remove buid(s) from storage matching the provided query values
     async findDelete(queryBUID) {
-        let datapack = new DataPack(".", "testDB.db", "buids");
-        datapack.key = 'id';
+        let datapack = new DataPack("buids", "id");
         if (queryBUID.id) datapack.addQuery("id", queryBUID.id);
         if (queryBUID.type) datapack.addQuery("type", queryBUID.type);
 
         // Submit removal request to storage manager
-        let deletedBUIDs = await APP.get('store').findDelete(datapack);
+        let deletedBUIDs = await this.storeController.findDelete(datapack);
 
         if (deletedBUIDs) {
             for (let buid of deletedBUIDs) {
@@ -176,9 +171,9 @@ class BUIDManager {
 
     // Retreives all buids
     async all() {
-        let datapack = new DataPack(".", "testDB.db", "buids");
+        let datapack = new DataPack("buids");
 
-        let results = await APP.get('store').all(datapack);
+        let results = await this.storeController.all(datapack);
 
         if (results) {
             return results;
@@ -189,25 +184,27 @@ class BUIDManager {
 
     // Clears all BUIDs
     async clear() {
-        let datapack = new DataPack(".", "testDB.db", "buids");
+        let datapack = new DataPack("buids");
 
-        await APP.get('store').clear(datapack);
+        await this.storeController.clear(datapack);
         return true;
     }
 
     // Sets up a new container for user storage
     async setup() {
-        let datapack = new DataPack(".", "testDB.db", "buids");
+        this.storeController = APP.get('storage');
+        let datapack = new DataPack("buids");
         datapack.addValue("id", "TEXT PRIMARY KEY");
         datapack.addValue("type", "TEXT");
-        await APP.get('store').newContainer(datapack);
+        await this.storeController.newStore(datapack);
+        await this.storeController.newContainer(datapack);
         return true;
     }
 
     async raze() {
-        let datapack = new DataPack(".", "testDB.db", "buids");
+        let datapack = new DataPack("buids", "id");
 
-        await APP.get('store').deleteContainer(datapack);
+        await this.storeController.deleteContainer(datapack);
         return true;
     }
 }

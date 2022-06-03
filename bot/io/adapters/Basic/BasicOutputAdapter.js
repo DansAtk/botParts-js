@@ -12,6 +12,10 @@ class BasicOutputAdapter extends OutputAdapter {
         super(theme);
     }
 
+    async setup() {
+        super.init();
+    }
+
     post(message) {
         console.log(message.content);
     }

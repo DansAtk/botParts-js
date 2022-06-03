@@ -13,6 +13,8 @@ class GroupManager {
             this.deleteScope(placeid);
             this.deleteMemberPlace(placeid);
         })
+
+        this.storeController;
     }
 
     // Generate a new Group object with a unique ID
@@ -28,8 +30,7 @@ class GroupManager {
 
     // Create a new entry for a group
     async add(newGroup) {
-        let datapack = new DataPack(".", "testDB.db", "groups");
-        datapack.key = 'id';
+        let datapack = new DataPack("groups", "id");
         datapack.addValue("id", newGroup.id);
         datapack.addValue("name", newGroup.name);
         datapack.addValue("scope", newGroup.scope);
@@ -37,7 +38,7 @@ class GroupManager {
         datapack.addValue("users", [...updateGroup.users].join(','));
         datapack.addValue("places", [...updateGroup.places].join(','));
 
-        let newGroupID = await APP.get('store').add(datapack);
+        let newGroupID = await this.storeController.add(datapack);
 
         if (newGroupID) {
             APP.get('events').emit('groupadd', newGroupID);
@@ -49,11 +50,10 @@ class GroupManager {
 
     // Get a single group directly via its ID
     async get(groupid) {
-        let datapack = new DataPack(".", "testDB.db", "groups");
-        datapack.key = 'id';
+        let datapack = new DataPack("groups", "id");
         datapack.addQuery('id', groupid)
 
-        let result = await APP.get('store').get(datapack);
+        let result = await this.storeController.get(datapack);
 
         if (result) {
             let resultGroup = new Group(result.id, result.name, null, result.tz);
@@ -81,8 +81,7 @@ class GroupManager {
 
     // Find groups that have properties matching the query group object
     async find(queryGroup) {
-        let datapack = new DataPack(".", "testDB.db", "groups");
-        datapack.key = 'id';
+        let datapack = new DataPack("groups", "id");
         if (queryGroup.id) datapack.addQuery("id", queryGroup.id);
         if (queryGroup.name) datapack.addQuery("name", queryGroup.name);
         if (queryGroup.scope) datapack.addQuery("scope", queryGroup.scope);
@@ -90,7 +89,7 @@ class GroupManager {
         if (queryGroup.users.size > 0) datapack.addQuery("users", [...queryGroup.users].join(','));
         if (queryGroup.places.size > 0) datapack.addQuery("places", [...queryGroup.places].join(','));
 
-        let results = await APP.get('store').find(datapack);
+        let results = await this.storeController.find(datapack);
 
         if (results) {
             let resultGroups = new Array();
@@ -126,8 +125,7 @@ class GroupManager {
 
     // Overwrite the group specified by ID with values in updateGroup
     async update(groupid, updateGroup) {
-        let datapack = new DataPack(".", "testDB.db", "groups");
-        datapack.key = 'id';
+        let datapack = new DataPack("groups", "id");
         datapack.addQuery("id", groupid);
 
         datapack.addValue("id", updateGroup.id);
@@ -137,7 +135,7 @@ class GroupManager {
         datapack.addValue("users", [...updateGroup.users].join(','));
         datapack.addValue("places", [...updateGroup.places].join(','));
 
-        let updatedGroupID = await APP.get('store').update(datapack);
+        let updatedGroupID = await this.storeController.update(datapack);
 
         if (updatedGroupID) {
             APP.get('events').emit('groupupdate', updatedGroupID);
@@ -149,8 +147,7 @@ class GroupManager {
 
     // Update all groups matching query values with values in updateGroup
     async findUpdate(queryGroup, updateGroup) {
-        let datapack = new DataPack(".", "testDB.db", "groups");
-        datapack.key = 'id';
+        let datapack = new DataPack("groups", "id");
         if (queryGroup.id) datapack.addQuery("id", queryGroup.id);
         if (queryGroup.name) datapack.addQuery("name", queryGroup.name);
         if (queryGroup.scope) datapack.addQuery("scope", queryGroup.scope);
@@ -165,7 +162,7 @@ class GroupManager {
         if (updateGroup.users.size > 0) datapack.addValue("users", [...updateGroup.users].join(','));
         if (updateGroup.places.size > 0) datapack.addValue("places", [...updateGroup.places].join(','));
 
-        let updatedGroupIDs = await APP.get('store').findUpdate(datapack);
+        let updatedGroupIDs = await this.storeController.findUpdate(datapack);
 
         if (updatedGroupIDs) {
             for (let groupid of updatedGroupIDs) {
@@ -180,11 +177,10 @@ class GroupManager {
 
     // Deletes a single group selected via its exact ID
     async delete(groupid) {
-        let datapack = new DataPack(".", "testDB.db", "groups");
-        datapack.key = 'id';
+        let datapack = new DataPack("groups", "id");
         datapack.addQuery("id", groupid);
 
-        let deletedGroupID = await APP.get('store').delete(datapack);
+        let deletedGroupID = await this.storeController.delete(datapack);
 
         if (deletedGroupID) {
             APP.get('events').emit('groupdelete', deletedGroupID);
@@ -197,8 +193,7 @@ class GroupManager {
 
     // Remove group(s) from storage matching the provided group
     async findDelete(queryGroup) {
-        let datapack = new DataPack(".", "testDB.db", "groups");
-        datapack.key = 'id';
+        let datapack = new DataPack("groups", "id");
         if (queryGroup.id) datapack.addQuery("id", queryGroup.id);
         if (queryGroup.name) datapack.addQuery("name", queryGroup.name);
         if (queryGroup.scope) datapack.addQuery("scope", queryGroup.scope);
@@ -206,7 +201,7 @@ class GroupManager {
         if (queryGroup.users.size > 0) datapack.addQuery("users", [...queryGroup.users].join(','));
         if (queryGroup.places.size > 0) datapack.addQuery("places", [...queryGroup.places].join(','));
 
-        let deletedGroupIDs = await APP.get('store').findDelete(datapack);
+        let deletedGroupIDs = await this.storeController.findDelete(datapack);
 
         if (deletedGroupIDs) {
             for (let groupid of deletedGroupIDs) {
@@ -221,9 +216,9 @@ class GroupManager {
 
     // Retrieves all groups
     async all() {
-        let datapack = new DataPack(".", "testDB.db", "groups");
+        let datapack = new DataPack("groups");
 
-        let results = await APP.get('store').all(datapack);
+        let results = await this.storeController.all(datapack);
 
         if (results) {
             let resultGroups = new Array();
@@ -259,9 +254,9 @@ class GroupManager {
 
     // Deletes all group entries
     async clear() {
-        let datapack = new Datapack(".", "testDB.db", "groups");
+        let datapack = new Datapack("groups");
 
-        await APP.get('store').clear(datapack);
+        await this.storeController.clear(datapack);
         return true;
     }
 
@@ -330,22 +325,24 @@ class GroupManager {
 
     // Sets up a new container for group storage
     async setup() {
-        let datapack = new DataPack(".", "testDB.db", "groups");
+        this.storeController = APP.get('storage');
+        let datapack = new DataPack("groups");
         datapack.addValue("id", "TEXT PRIMARY KEY");
         datapack.addValue("name", "TEXT");
         datapack.addValue("scope", "TEXT");
         datapack.addValue("tz", "TEXT");
         datapack.addValue("users", "TEXT");
         datapack.addValue("places", "TEXT");
-        await APP.get('store').newContainer(datapack);
+        await this.storeController.newStore(datapack);
+        await this.storeController.newContainer(datapack);
         return true;
     }
 
     // Removes/deletes the groups container
     async raze() {
-        let datapack = new DataPack(".", "testDB.db", "groups");
+        let datapack = new DataPack("groups");
 
-        await APP.get('store').deleteContainer(datapack);
+        await this.storeController.deleteContainer(datapack);
         return true;
     }
 }

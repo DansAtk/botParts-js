@@ -21,28 +21,28 @@ class MemoryController {
     }
 
     async find(datapack) {
-        let results = new Array(yy);
+        let results = new Array();
 
-        for (var [key, value] of this.data.get(datapack.container)) {
-            let valid = true;
+        for (let entry of this.data.get(datapack.container).values()) {
+            var valid = true;
             for (let prop of Object.entries(datapack.queries)) {
                 if (prop[1] != null) {
-                    let proptype = typeof value[prop[0]];
+                    let proptype = typeof entry[prop[0]];
                     switch (proptype) {
                         case 'string':
-                            if (!value[prop[0]].includes(prop[1])) {
+                            if (!entry[prop[0]].includes(prop[1].toLowerCase())) {
                                 valid = false;
                             }
                             break;
                         default:
-                            if (value[prop[0]] != prop[1]) {
+                            if (entry[prop[0]] != prop[1]) {
                                 valid = false;
                             }
                     }
                 }
             }
             if (valid) {
-                results.push(value);
+                results.push(entry);
             }
         }
 
@@ -163,6 +163,14 @@ class MemoryController {
         return true;
     }
 
+    async newStore(datapack) {
+        return true;
+    }
+
+    async deleteStore(datapack) {
+        return true;
+    }
+
     async newContainer(datapack) {
         this.data.set(datapack.container, new Map());
         return true;
@@ -170,6 +178,10 @@ class MemoryController {
 
     async deleteContainer(datapack) {
         this.data.delete(datapack.container);
+        return true;
+    }
+
+    async setup() {
         return true;
     }
 }

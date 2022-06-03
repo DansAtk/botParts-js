@@ -8,6 +8,8 @@ class UserManager {
         APP.get('events').on('placedelete', (scopeid) => {
             this.deleteScope(scopeid);
         })
+
+        this.storeController;
     }
 
     // Generate a new User object with a unique ID
@@ -27,8 +29,7 @@ class UserManager {
     // Create a new entry for a user
     async add(newUser) {
         // Build a datapack from the passed user
-        let datapack = new DataPack(".", "testDB.db", "users");
-        datapack.key = 'id';
+        let datapack = new DataPack("users", "id");
         datapack.addValue("id", newUser.id);
         datapack.addValue("name", newUser.name);
         datapack.addValue("scope", newUser.scope);
@@ -38,7 +39,7 @@ class UserManager {
         datapack.addValue("points", newUser.points);
 
         // Submit request for storage of the datapack to the storage manager
-        let newUserID = await APP.get('store').add(datapack);
+        let newUserID = await this.storeController.add(datapack);
 
         if (newUserID) {
             APP.get('events').emit('useradd', newUserID);
@@ -50,11 +51,10 @@ class UserManager {
 
     // Get a single user directly via its ID
     async get(userid) {
-        let datapack = new DataPack(".", "testDB.db", "users");
-        datapack.key = 'id';
+        let datapack = new DataPack("users", "id");
         datapack.addQuery('id', userid);
 
-        let result = await APP.get('store').get(datapack);
+        let result = await this.storeController.get(datapack);
 
         if (result) {
             let resultUser = new User(result.id, result.name, null, result.tz, result.bday, result.country, result.points);
@@ -68,8 +68,7 @@ class UserManager {
     // Find users that have properties matching the query user object
     async find(queryUser) {
         // Build a datapack from the passed user object, using its values as a query
-        let datapack = new DataPack(".", "testDB.db", "users");
-        datapack.key = 'id';
+        let datapack = new DataPack("users", "id");
         if (queryUser.id) datapack.addQuery("id", queryUser.id);
         if (queryUser.name) datapack.addQuery("name", queryUser.name);
         if (queryUser.scope) datapack.addQuery("scope", queryUser.scope);
@@ -79,7 +78,7 @@ class UserManager {
         if (queryUser.points != null) datapack.addQuery("points", queryUser.points);
 
         // Submit query to storage manager
-        let results = await APP.get('store').find(datapack);
+        let results = await this.storeController.find(datapack);
 
         // Repackage results back into User objects and store them in an array
         if (results) {
@@ -101,8 +100,7 @@ class UserManager {
 
     // Overwrite the user specified by ID with values in updateUser
     async update(userid, updateUser) {
-        let datapack = new DataPack(".", "testDB.db", "users");
-        datapack.key = 'id';
+        let datapack = new DataPack("users", "id");
         datapack.addQuery("id", userid);
 
         datapack.addValue("id", updateUser.id);
@@ -114,7 +112,7 @@ class UserManager {
         datapack.addValue("points", updateUser.points);
 
         // Submit update request to storage manager
-        let updatedUserID = await APP.get('store').update(datapack);
+        let updatedUserID = await this.storeController.update(datapack);
 
         if (updatedUserID) {
             APP.get('events').emit('userupdate', updatedUserID);
@@ -127,8 +125,7 @@ class UserManager {
 
     // Update all users matching query values with values in updateUser
     async findUpdate(queryUser, updateUser) {
-        let datapack = new DataPack(".", "testDB.db", "users");
-        datapack.key = 'id';
+        let datapack = new DataPack("users", "id");
         if (queryUser.id) datapack.addQuery("id", queryUser.id);
         if (queryUser.name) datapack.addQuery("name", queryUser.name);
         if (queryUser.scope) datapack.addQuery("scope", queryUser.scope);
@@ -146,7 +143,7 @@ class UserManager {
         if (updateUser.points != null) datapack.addValue("points", updateUser.points);
 
         // Submit update request to storage manager
-        let updatedUserIDs = await APP.get('store').findUpdate(datapack);
+        let updatedUserIDs = await this.storeController.findUpdate(datapack);
 
         if (updatedUserIDs) {
             for (let userid of updatedUserIDs) {
@@ -161,11 +158,10 @@ class UserManager {
 
     // Deletes a single user selected via its exact ID
     async delete(userid) {
-        let datapack = new DataPack(".", "testDB.db", "users");
-        datapack.key = 'id';
+        let datapack = new DataPack("users", "id");
         datapack.addQuery("id", userid);
 
-        let deletedUserID = await APP.get('store').delete(datapack);
+        let deletedUserID = await this.storeController.delete(datapack);
 
         if (deletedUserID) {
             APP.get('events').emit('userdelete', deletedUserID);
@@ -179,8 +175,7 @@ class UserManager {
     // Remove user(s) from storage matching the provided user
     async findDelete(queryUser) {
         // Build a datapack using the passed in user for query values
-        let datapack = new DataPack(".", "testDB.db", "users");
-        datapack.key = 'id';
+        let datapack = new DataPack("users", "id");
         if (queryUser.id) datapack.addQuery("id", queryUser.id);
         if (queryUser.name) datapack.addQuery("name", queryUser.name);
         if (queryUser.scope) datapack.addQuery("scope", queryUser.scope);
@@ -190,7 +185,7 @@ class UserManager {
         if (queryUser.points != null) datapack.addQuery("points", queryUser.points);
 
         // Submit removal request to storage manager
-        let deletedUserIDs = await APP.get('store').findDelete(datapack);
+        let deletedUserIDs = await this.storeController.findDelete(datapack);
 
         if (deletedUserIDs) {
             for (let userid of deletedUserIDs) {
@@ -205,9 +200,9 @@ class UserManager {
 
     // Retrieves all users
     async all() {
-        let datapack = new DataPack(".", "testDB.db", "users");
+        let datapack = new DataPack("users", "id");
 
-        let results = await APP.get('store').all(datapack);
+        let results = await this.storeController.all(datapack);
 
         if (results) {
             let resultUsers = new Array();
@@ -228,9 +223,9 @@ class UserManager {
 
     // Deletes all user entries
     async clear() {
-        let datapack = new DataPack(".", "testDB.db", "users");
-    
-        await APP.get('store').clear(datapack);
+        let datapack = new DataPack("users", "id");
+
+        await this.storeController.clear(datapack);
         return true;
     }
 
@@ -259,7 +254,8 @@ class UserManager {
 
     // Sets up a new container for user storage
     async setup() {
-        let datapack = new DataPack(".", "testDB.db", "users");
+        this.storeController = APP.get('storage');
+        let datapack = new DataPack("users", "id");
         datapack.addValue("id", "TEXT PRIMARY KEY");
         datapack.addValue("name", "TEXT");
         datapack.addValue("scope", "TEXT");
@@ -267,16 +263,17 @@ class UserManager {
         datapack.addValue("bday", "TEXT");
         datapack.addValue("country", "TEXT");
         datapack.addValue("points", "INTEGER");
-        await APP.get('store').newContainer(datapack);
+        await this.storeController.newStore(datapack);
+        await this.storeController.newContainer(datapack);
         if (!(await this.get(BOTUSER.id))) await this.add(BOTUSER);
         return true;
     }
 
     // Removes/deletes the users container
     async raze() {
-        let datapack = new DataPack(".", "testDB.db", "users");
+        let datapack = new DataPack("users", "id");
 
-        await APP.get('store').deleteContainer(datapack);
+        await this.storeController.deleteContainer(datapack);
         return true;
     }
 }

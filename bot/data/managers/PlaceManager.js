@@ -7,6 +7,8 @@ class PlaceManager {
         APP.get('events').on('placedelete', (scopeid) => {
             this.deleteScope(scopeid);
         })
+        
+        this.storeController;
     }
 
     // Generate a new Place object with a unique ID
@@ -24,8 +26,7 @@ class PlaceManager {
     // Create a new entry for a place
     async add(newPlace) {
         // Build a datapack from the passed place
-        let datapack = new DataPack(".", "testDB.db", "places");
-        datapack.key = 'id';
+        let datapack = new DataPack("places", "id");
         datapack.addValue("id", newPlace.id);
         datapack.addValue("name", newPlace.name);
         datapack.addValue("scope", newPlace.scope);
@@ -34,7 +35,7 @@ class PlaceManager {
         datapack.addValue("children", [...newPlace.children].join(','));
 
         // Submit request for storage of the datapack to the storage manager
-        let newPlaceID = await APP.get('store').add(datapack);
+        let newPlaceID = await this.storeController.add(datapack);
 
         if (newPlaceID) {
             APP.get('events').emit('placeadd', newPlaceID);
@@ -46,11 +47,10 @@ class PlaceManager {
 
     // Get a single place directly via its ID
     async get(placeid) {
-        let datapack = new DataPack(".", "testDB.db", "places");
-        datapack.key = 'id';
+        let datapack = new DataPack("places", "id");
         datapack.addQuery('id', placeid);
 
-        let result = await APP.get('store').get(datapack);
+        let result = await this.storeController.get(datapack);
 
         if (result) {
             let resultPlace = new Place(result.id, result.name, null, result.tz, result.trigger);
@@ -72,8 +72,7 @@ class PlaceManager {
     // Find places that have properties matching the query place object
     async find(queryPlace) {
         // Build a datapack from the passed place object, using its values as a query
-        let datapack = new DataPack(".", "testDB.db", "places");
-        datapack.key = 'id';
+        let datapack = new DataPack("places", "id");
         if (queryPlace.id) datapack.addQuery("id", queryPlace.id);
         if (queryPlace.name) datapack.addQuery("name", queryPlace.name);
         if (queryPlace.scope) datapack.addQuery("scope", queryPlace.scope);
@@ -82,7 +81,7 @@ class PlaceManager {
         if (queryPlace.children.size > 0) datapack.addQuery("children", [...queryPlace.children].join(','));
 
         // Submit query to storage manager
-        let results = await APP.get('store').find(datapack);
+        let results = await this.storeController.find(datapack);
 
         // Repackage results back into Place objects and store them in an array
         if (results) {
@@ -112,8 +111,7 @@ class PlaceManager {
 
     // Overwrite the place specified by ID with values in updatePlace
     async update(placeid, updatePlace) {
-        let datapack = new DataPack(".", "testDB.db", "places");
-        datapack.key = 'id';
+        let datapack = new DataPack("places", "id");
         datapack.addQuery("id", placeid);
 
         datapack.addValue("id", updatePlace.id);
@@ -123,7 +121,7 @@ class PlaceManager {
         datapack.addValue("trigger", updatePlace.trigger);
         if (updatePlace.children.size > 0) datapack.addValue("children", [...updatePlace.children].join(','));
 
-        let updatedPlaceID = await APP.get('store').update(datapack);
+        let updatedPlaceID = await this.storeController.update(datapack);
 
         if (updatedPlaceID) {
             APP.get('events').emit('placeupdate', updatedPlaceID);
@@ -135,8 +133,7 @@ class PlaceManager {
 
     // Update all places matching query values with values in updatePlace
     async findUpdate(queryPlace, updatePlace) {
-        let datapack = new DataPack(".", "testDB.db", "places");
-        datapack.key = 'id';
+        let datapack = new DataPack("places", "id");
         if (queryPlace.id) datapack.addQuery("id", queryPlace.id);
         if (queryPlace.name) datapack.addQuery("name", queryPlace.name);
         if (queryPlace.scope) datapack.addQuery("scope", queryPlace.scope);
@@ -152,7 +149,7 @@ class PlaceManager {
         if (updatePlace.children.size > 0) datapack.addValue("children", [...updatePlace.children].join(','));
 
         // Submit update request to storage manager
-        let updatedPlaceIDs = await APP.get('store').findUpdate(datapack);
+        let updatedPlaceIDs = await this.storeController.findUpdate(datapack);
 
         if (updatedPlaceIDs) {
             for (let placeid of updatedPlaceIDs) {
@@ -167,11 +164,10 @@ class PlaceManager {
 
     // Deletes a single place selected via its exact ID
     async delete(placeid) {
-        let datapack = new DataPack(".", "testDB.db", "places");
-        datapack.key = 'id';
+        let datapack = new DataPack("places", "id");
         datapack.addQuery("id", placeid);
 
-        let deletedPlaceID = await APP.get('store').delete(datapack);
+        let deletedPlaceID = await this.storeController.delete(datapack);
 
         if (deletedPlaceID) {
             APP.get('events').emit('placedelete', deletedPlaceID);
@@ -185,8 +181,7 @@ class PlaceManager {
     // Remove place(s) from storage matching the provided place
     async findDelete(queryPlace) {
         // Build a datapack using the passed in place for query values
-        let datapack = new DataPack(".", "testDB.db", "places");
-        datapack.key = 'id';
+        let datapack = new DataPack("places", "id");
         if (queryPlace.id) datapack.addQuery("id", queryPlace.id);
         if (queryPlace.name) datapack.addQuery("name", queryPlace.name);
         if (queryPlace.scope) datapack.addQuery("scope", queryPlace.scope);
@@ -195,7 +190,7 @@ class PlaceManager {
         if (queryPlace.children.size > 0) datapack.addQuery("children", [...queryPlace.children].join(','));
 
         // Submit removal request to storage manager
-        let deletedPlaceIDs = await APP.get('store').findDelete(datapack);
+        let deletedPlaceIDs = await this.storeController.findDelete(datapack);
 
         if (deletedPlaceIDs) {
             for (let placeid of deletedPlaceIDs) {
@@ -210,11 +205,10 @@ class PlaceManager {
 
     // Retrieves all places
     async all() {
-        let datapack = new DataPack(".", "testDB.db", "places");
-        datapack.key = 'id';
-        
+        let datapack = new DataPack("places", "id");
+
         // Submit query to storage manager
-        let results = await APP.get('store').all(datapack);
+        let results = await this.storeController.all(datapack);
 
         // Repackage results back into Place objects and store them in an array
         if (results) {
@@ -244,9 +238,9 @@ class PlaceManager {
 
     // Deletes all place entries
     async clear() {
-        let datapack = new DataPack(".", "testDB.db", "places");
-    
-        await APP.get('store').clear(datapack);
+        let datapack = new DataPack("places", "id");
+
+        await this.storeController.clear(datapack);
         return true;
     }
 
@@ -295,23 +289,25 @@ class PlaceManager {
 
     // Sets up a new container for place storage
     async setup() {
-        let datapack = new DataPack(".", "testDB.db", "places");
+        this.storeController = APP.get('storage');
+        let datapack = new DataPack("places", "id");
         datapack.addValue("id", "TEXT PRIMARY KEY");
         datapack.addValue("name", "TEXT");
         datapack.addValue("scope", "TEXT");
         datapack.addValue("tz", "TEXT");
         datapack.addValue("trigger", "TEXT");
         datapack.addValue("children", "TEXT");
-        await APP.get('store').newContainer(datapack);
+        await this.storeController.newStore(datapack);
+        await this.storeController.newContainer(datapack);
         if (!(await this.get(GLOBAL.id))) await this.add(GLOBAL);
         return true;
     }
 
     // Removes/deletes the places container
     async raze() {
-        let datapack = new Datapack(".", "testDB.db", "places");
+        let datapack = new Datapack("places", "id");
 
-        await APP.get('store').deleteContainer(datapack);
+        await this.storeController.deleteContainer(datapack);
         return true;
     }
 }
