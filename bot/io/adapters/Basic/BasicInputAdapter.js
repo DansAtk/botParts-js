@@ -12,13 +12,32 @@ const { Place, GLOBAL } = require('../../../data/models/Place')
 class BasicInputAdapter extends InputAdapter {
     constructor() {
         super();
-        this.cliuser = new User('CLIUSER', 'CLIUSER', GLOBAL);
-        this.stdin = new Place('STDIN', 'STDIN', GLOBAL, 'America/New_York', '!');
-        this.stdout = new Place('STDOUT', 'STDOUT', GLOBAL, 'America/New_York', '!');
+        this.cliuser;
+        this.stdout;
+        this.stdin;
     }
 
-    init() {
+    async setup() {
         super.init();
+
+        this.cliuser = await APP.get('users').get('CLIUSER');
+        if (!this.cliuser) {
+            this.cliuser = new User('CLIUSER', 'CLIUSER', GLOBAL);
+            await APP.get('users').add(this.cliuser);
+        }
+
+        this.stdout = await APP.get('places').get('STDOUT');
+        if (!this.stdout) {
+            this.stdout = new Place('STDOUT', 'STDOUT', GLOBAL, 'America/New_York', '!');
+            await APP.get('places').add(this.stdout);
+        }
+
+        this.stdin = await APP.get('places').get('STDIN');
+        if (!this.stdin) {
+            this.stdin = new Place('STDIN', 'STDIN', GLOBAL, 'America/New_York', '!');
+            await APP.get('places').add(this.stdin);
+        }
+
         process.stdin.resume();
         process.stdin.setEncoding("ascii");
         process.stdin.on("data", (content) => this.processMessage(content.trim()));

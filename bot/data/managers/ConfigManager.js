@@ -109,7 +109,6 @@ class ConfigManager {
     async setup() {
         this.add('global',
             {
-                'root': path.join(__dirname, '../../..'),
                 'configdir': 'config'
             });
 
@@ -129,6 +128,18 @@ class ConfigManager {
 
             this.updateProperty('global', 'datacontroller', controllers[datamethod]);
             console.log('');
+
+            console.log('Interface config not found!');
+
+            let interfaces = ['BASIC'];
+            let selectedInterface = readlineSync.keyInSelect(interfaces, `Choose an interface`, {cancel: 'EXIT'});
+
+            if (selectedInterface < 0) {
+                process.exit(0);
+            }
+
+            this.updateProperty('global', 'outputadapter', interfaces[selectedInterface].concat('OUTPUT'));
+            this.updateProperty('global', 'inputadapter', interfaces[selectedInterface].concat('INPUT'));
 
             //console.log(`Data storage settings\nDirectory: ${this.getProperty('global', 'datadir')}\nMethod: ${this.getProperty('global', 'datacontroller')}`);
 

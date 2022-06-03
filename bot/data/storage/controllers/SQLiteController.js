@@ -341,7 +341,7 @@ class SQLiteController {
     }
 
     async setup() {
-        this.root = APP.get('configs').getProperty('global', 'root');
+        this.root = APP.get('root');
 
         if (!await APP.get('configs').load('sqlite')) {
             console.log('SQLite config not found!');

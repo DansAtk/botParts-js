@@ -109,3 +109,4 @@ dist
 
 # Config files
 /config
+.changelog

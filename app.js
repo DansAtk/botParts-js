@@ -8,6 +8,8 @@ const { BotController } = require('./bot/BotController');
 
 let bot = new BotController();
 
+APP.add('root', __dirname);
+
 bot.start();
 
 // For handling unexpected shutdown via keyboard interrupt

@@ -130,7 +130,7 @@ class ConfigController {
     }
 
     async setup() {
-        this.root = APP.get('configs').getProperty('global', 'root');
+        this.root = APP.get('root');
         this.store = APP.get('configs').getProperty('global', 'configdir');
         let folder = path.join(this.root, this.store);
         if (!await this.exists(folder)) {

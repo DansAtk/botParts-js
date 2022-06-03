@@ -258,7 +258,7 @@ class JSONController {
     }
 
     async setup() {
-        this.root = APP.get('configs').getProperty('global', 'root');
+        this.root = APP.get('root');
 
         if (!await APP.get('configs').load('json')) {
             console.log('JSON config not found!')
@@ -275,7 +275,6 @@ class JSONController {
         this.store = APP.get('configs').getProperty('json', 'directory');
         await APP.get('configs').save('json');
     }
-
 }
 
 module.exports = { JSONController };

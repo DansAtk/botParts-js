@@ -33,10 +33,12 @@ class BotController {
         APP.add('places', new PlaceManager());
         APP.add('commands', new CommandManager());
         APP.add('dispatcher', new Dispatcher());
+        APP.add('BASICOUTPUT', new BasicOutputAdapter(ChatTheme));
+        APP.add('BASICINPUT', new BasicInputAdapter());
 
         APP.add('logging', new LogAdapter());
-        APP.add('output', new BasicOutputAdapter(ChatTheme));
-        APP.add('input', new BasicInputAdapter());
+        //APP.add('output', new BasicOutputAdapter(ChatTheme));
+        //APP.add('input', new BasicInputAdapter());
 
         APP.get('events').on('inmessage', (message) => APP.get('dispatcher').parse(message));
         APP.get('events').on('shutdown', this.cleanup);
@@ -49,14 +51,24 @@ class BotController {
             APP.get(APP.get('configs').getProperty('global', 'datacontroller'))
         );
         
+        APP.add(
+            'output',
+            APP.get(APP.get('configs').getProperty('global', 'outputadapter'))
+        );
+        
+        APP.add(
+            'input',
+            APP.get(APP.get('configs').getProperty('global', 'inputadapter'))
+        );
+
         await APP.get('storage').setup();
         await APP.get('buids').setup();
         await APP.get('groups').setup();
         await APP.get('users').setup();
         await APP.get('places').setup();
         APP.get('logging').init();
-        APP.get('output').init();
-        APP.get('input').init();
+        await APP.get('output').setup();
+        await APP.get('input').setup();
         APP.get('events').emit('logmessage', "");
     }
 
